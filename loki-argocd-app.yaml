@@ -1,0 +1,42 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: portfolio-loki
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-options: ServerSideApply=true
+spec:
+  project: default
+  source:
+    repoURL: 'https://grafana.github.io/helm-charts'
+    targetRevision: 5.41.5 # バージョン固定
+    chart: loki
+    helm:
+      values: |
+        # 大規模分散モードではなく、単一Podで動く軽量なSingleBinaryモードを指定
+        deploymentMode: SingleBinary
+        loki:
+          auth_enabled: false # 検証環境のためテナント認証をオフ
+          commonConfig:
+            replication_factor: 1 # 冗長化を1（レプリカ1）に設定
+          # クラウドのS3等の代わりに、ローカルのファイルシステム(一時領域)を保存先に指定
+          storage:
+            type: filesystem
+        singleBinary:
+          replicas: 1
+          persistence:
+            enabled: false # 永続ボリューム要求(PVC)を無効化し、メモリ/一時ディスクを使用
+        # 読み込み/書き込みなどの個別コンポーネントは起動させない
+        read:
+          replicas: 0
+        write:
+          replicas: 0
+        backend:
+          replicas: 0
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

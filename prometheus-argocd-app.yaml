@@ -25,6 +25,17 @@ spec:
           # ストレージ要求を無効化（一時領域を使用）
           persistence:
             enabled: false
+          # 【ここから下を新規追記！】
+          # Grafana起動時に、自動的にLokiをデータソースとして登録させる宣言
+          additionalDataSources:
+            - name: Loki
+              type: loki
+              # LokiのKubernetes内部URLを指定
+              url: http://loki.monitoring.svc.cluster.local:3100
+              access: proxy
+              isDefault: false
+              version: 1
+          # 【追記ここまで】
 
         # 2. Prometheus本体のストレージ要求を無効化
         prometheus:
@@ -34,7 +45,7 @@ spec:
                 medium: Memory # メモリ上に一時保存（Podが消えるとデータは消えるが動作検証用には最適）
             # K8s標準のAPIサーバー監視設定の調整（kubeadm環境用）
             hostNetwork: true
-            
+
         # 3. アラートマネージャーのストレージ要求を無効化
         alertmanager:
           alertmanagerSpec:
