@@ -1,10 +1,9 @@
-# nginx-service.yaml
 apiVersion: v1
 kind: Service
 metadata:
   name: gitops-nginx-service
 spec:
-  type: NodePort
+  type: LoadBalancer # <-- ここをNodePortから変更！
   selector:
     app: gitops-nginx
   ports:

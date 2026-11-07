@@ -3,70 +3,47 @@ kind: Application
 metadata:
   name: portfolio-monitoring-stack
   namespace: argocd
-  # 前回のDNSエラー同様、CRDが長すぎる問題を防ぐため、ArgoCDにServer-Side Applyを強制する魔法のアノテーション
   annotations:
     argocd.argoproj.io/sync-options: ServerSideApply=true
 spec:
   project: default
   source:
-    # GitHubではなく、インターネット上の公式Helmリポジトリを直接指定します
     repoURL: 'https://prometheus-community.github.io/helm-charts'
-    targetRevision: 62.7.0 # チャートのバージョンを固定（構成ドリフトを防ぐSREの基本）
+    targetRevision: 62.7.0
     chart: kube-prometheus-stack
-    # ここから下が、Helmのデフォルト設定を私たちの環境に合わせて書き換える（オーバーライド）部分です
     helm:
       values: |
-        # 1. Grafanaの外部公開設定
         grafana:
           service:
             type: NodePort
-            nodePort: 32000 # 32000番ポートで固定してアクセスしやすくする
-          adminPassword: "admin" # 初期ログインパスワードを指定
-          # ストレージ要求を無効化（一時領域を使用）
+            nodePort: 32000
+          adminPassword: "admin"
           persistence:
             enabled: false
-          # 【ここから下を新規追記！】
-          # Grafana起動時に、自動的にLokiをデータソースとして登録させる宣言
-          additionalDataSources:
-            - name: Loki
-              type: loki
-              # LokiのKubernetes内部URLを指定
-              url: http://loki.monitoring.svc.cluster.local:3100
-              access: proxy
-              isDefault: false
-              version: 1
-          # 【追記ここまで】
-
-        # 2. Prometheus本体のストレージ要求を無効化
         prometheus:
           prometheusSpec:
             storageSpec:
               emptyDir:
-                medium: Memory # メモリ上に一時保存（Podが消えるとデータは消えるが動作検証用には最適）
-            # K8s標準のAPIサーバー監視設定の調整（kubeadm環境用）
-            hostNetwork: true
-
-        # 3. アラートマネージャーのストレージ要求を無効化
+                medium: Memory
+          hostNetwork: true
         alertmanager:
           alertmanagerSpec:
             storage:
               emptyDir:
                 medium: Memory
-
-        # 4. kube-controller-manager と kube-scheduler の監視ポート設定（kubeadm特有の設定）
         kubeControllerManager:
           endpoints:
-            - 192.168.2.13 # Control PlaneのIP
+            - 192.168.2.13
         kubeScheduler:
           endpoints:
-            - 192.168.2.13 # Control PlaneのIP
+            - 192.168.2.13
   destination:
     server: 'https://kubernetes.default.svc'
-    namespace: monitoring # デプロイ先をmonitoring名前空間に指定
+    namespace: monitoring
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
-      - ServerSideApply=true # ArgoCD同期時にもServer-Side Applyを使用
+      - ServerSideApply=true
