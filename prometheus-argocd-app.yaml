@@ -14,6 +14,7 @@ spec:
     helm:
       values: |
         grafana:
+          enabled: true
           adminPassword: "admin"
           persistence:
             enabled: false
