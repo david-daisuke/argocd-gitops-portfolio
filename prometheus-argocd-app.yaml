@@ -1,47 +1,47 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: portfolio-monitoring-stack
-  namespace: argocd
-  annotations:
-    argocd.argoproj.io/sync-options: ServerSideApply=true
+name: portfolio-monitoring-stack
+namespace: argocd
+annotations:
+argocd.argoproj.io/sync-options: ServerSideApply=true
 spec:
-  project: default
-  source:
-    repoURL: 'https://prometheus-community.github.io/helm-charts'
-    targetRevision: 62.7.0
-    chart: kube-prometheus-stack
-    helm:
-      values: |
-        grafana:
-          enabled: true
-          adminPassword: "admin"
-          persistence:
-            enabled: false
-        prometheus:
-          prometheusSpec:
-            storageSpec:
-              emptyDir:
-                medium: Memory
-          hostNetwork: true
-        alertmanager:
-          alertmanagerSpec:
-            storage:
-              emptyDir:
-                medium: Memory
-        kubeControllerManager:
-          endpoints:
-            - 192.168.2.13
-        kubeScheduler:
-          endpoints:
-            - 192.168.2.13
-  destination:
-    server: 'https://kubernetes.default.svc'
-    namespace: monitoring
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
-      - ServerSideApply=true
+project: default
+source:
+repoURL: 'https://prometheus-community.github.io/helm-charts'
+targetRevision: 62.7.0
+chart: kube-prometheus-stack
+helm:
+  values: |
+    grafana:
+      enabled: true
+      adminPassword: "admin"
+      persistence:
+        enabled: false
+    prometheus:
+      prometheusSpec:
+        storageSpec:
+          emptyDir:
+            medium: Memory
+      hostNetwork: true
+    alertmanager:
+      alertmanagerSpec:
+        storage:
+          emptyDir:
+            medium: Memory
+    kubeControllerManager:
+      endpoints:
+        - 192.168.2.13
+    kubeScheduler:
+      endpoints:
+        - 192.168.2.13
+destination:
+server: 'https://kubernetes.default.svc'
+namespace: monitoring
+syncPolicy:
+automated:
+  prune: true
+  selfHeal: true
+syncOptions:
+  - CreateNamespace=true
+  - ServerSideApply=true
