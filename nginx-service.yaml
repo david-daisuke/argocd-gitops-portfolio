@@ -1,0 +1,13 @@
+# nginx-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: gitops-nginx-service
+spec:
+  type: NodePort
+  selector:
+    app: gitops-nginx
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
