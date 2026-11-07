@@ -14,10 +14,6 @@ spec:
     helm:
       values: |
         grafana:
-          service:
-            type: LoadBalancer # NodePortから変更
-            port: 80         # 外部からのアクセスポートを80に指定
-            targetPort: 3000   # Grafanaコンテナ内のポート
           adminPassword: "admin"
           persistence:
             enabled: false
