@@ -16,8 +16,7 @@ spec:
         grafana:
           adminPassword: "admin"
           persistence:
-            enabled: true
-            size: 10Gi
+            enabled: false
         prometheus:
           prometheusSpec:
             storageSpec:
