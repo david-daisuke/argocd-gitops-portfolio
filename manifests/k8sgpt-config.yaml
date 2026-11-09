@@ -8,7 +8,7 @@ spec:
     enabled: true
     backend: localai
     # OllamaのService名に向けた内部通信URL
-    baseUrl: [http://ollama.ollama.svc.cluster.local:11434/v1](http://ollama.ollama.svc.cluster.local:11434/v1)
+    baseUrl: http://ollama.ollama.svc.cluster.local:11434/v1
     model: llama3
   noCache: false
   repository: ghcr.io/k8sgpt-ai/k8sgpt
