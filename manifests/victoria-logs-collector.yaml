@@ -13,7 +13,7 @@ spec:
       releaseName: vlc
       values: |
         remoteWrite:
-          - url: http://vls-victoria-logs-single-server:9428
+          - url: http://vls-victoria-logs-single-server.logging.svc.cluster.local:9428
         resources:
           requests:
             cpu: 100m
