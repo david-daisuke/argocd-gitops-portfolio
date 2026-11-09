@@ -1,50 +1,34 @@
 # Kubernetes GitOps Infrastructure Portfolio
 
-<p align="center">
-  <strong>A Self-Hosted Kubernetes Platform Managed with Argo CD, GitOps, Helm, and Observability Tools</strong>
-</p>
+![Kubernetes](https://img.shields.io/badge/Kubernetes-326CE5?style=for-the-badge&logo=kubernetes&logoColor=white)
+![Argo CD](https://img.shields.io/badge/Argo_CD-EF7B4D?style=for-the-badge&logo=argo&logoColor=white)
+![Helm](https://img.shields.io/badge/Helm-0F1689?style=for-the-badge&logo=helm&logoColor=white)
+![Prometheus](https://img.shields.io/badge/Prometheus-E6522C?style=for-the-badge&logo=prometheus&logoColor=white)
+![Grafana](https://img.shields.io/badge/Grafana-F46800?style=for-the-badge&logo=grafana&logoColor=white)
 
-<p align="center">
-  <img src="https://img.shields.io/badge/Kubernetes-Platform-326CE5?logo=kubernetes&logoColor=white" />
-  <img src="https://img.shields.io/badge/GitOps-Argo%20CD-EF7B4D?logo=argo&logoColor=white" />
-  <img src="https://img.shields.io/badge/Monitoring-Prometheus-E6522C?logo=prometheus&logoColor=white" />
-  <img src="https://img.shields.io/badge/Dashboards-Grafana-F46800?logo=grafana&logoColor=white" />
-  <img src="https://img.shields.io/badge/Logging-VictoriaLogs-5B6ABF?logo=victoriametrics&logoColor=white" />
-  <img src="https://img.shields.io/badge/Networking-MetalLB-00AEEF?logo=kubernetes&logoColor=white" />
-</p>
+A GitOps-driven infrastructure portfolio built on a multi-node Kubernetes cluster.
+
+This repository demonstrates practical implementation of Kubernetes,
+Argo CD, Helm, infrastructure networking, application deployment,
+monitoring, and centralized logging.
+
+The Git repository acts as the source of truth for the resources
+managed by Argo CD.
 
 ---
 
 ## 1. Project Overview
 
-This repository contains the declarative configuration for a self-hosted Kubernetes infrastructure platform.
+This project is a collection of infrastructure services and applications
+running on a self-managed Kubernetes cluster.
 
-The project demonstrates practical experience in designing, deploying, and operating a multi-node Kubernetes environment using GitOps principles.
-
-The primary objectives are to demonstrate skills in:
-
-- Kubernetes cluster administration and workload management
-- GitOps-based infrastructure management with Argo CD
-- Declarative application deployment using Kubernetes manifests
-- Helm-based application installation and lifecycle management
-- Container networking and external service exposure
-- Infrastructure monitoring and metrics collection
-- Centralized log collection and storage
-- Persistent storage for stateful applications
-- Secure external connectivity using Cloudflare Tunnel
-- Kubernetes troubleshooting and operational practices
-
-The Git repository serves as the source of truth for the resources managed by Argo CD.
-
-Changes committed to Git are automatically reconciled with the desired state of the Kubernetes cluster.
-
-### Platform Components
+### Current Platform Components
 
 | Component | Purpose |
 |---|---|
 | Kubernetes | Container orchestration platform |
 | Argo CD | GitOps continuous delivery |
-| Helm | Application packaging and deployment |
+| Helm | Packaging and deployment of platform components |
 | WordPress | Self-hosted web application |
 | MySQL 8.0 | WordPress database |
 | MetalLB | LoadBalancer implementation for bare-metal Kubernetes |
@@ -52,10 +36,21 @@ Changes committed to Git are automatically reconciled with the desired state of 
 | Grafana | Metrics visualization and dashboards |
 | kube-state-metrics | Kubernetes object state metrics |
 | Node Exporter | Host-level metrics |
-| Alertmanager | Alert handling and notifications |
+| Alertmanager | Alert handling |
 | VictoriaLogs | Centralized log storage |
 | VictoriaLogs Collector | Log collection and forwarding |
-| Cloudflare Tunnel | Secure external connectivity |
+| Cloudflare Tunnel | External connectivity |
+
+### Project Objectives
+
+- Operate a multi-node Kubernetes environment.
+- Manage infrastructure declaratively through Git.
+- Implement continuous reconciliation using Argo CD.
+- Deploy applications and infrastructure components with Helm.
+- Expose Kubernetes services using MetalLB.
+- Monitor cluster health and performance.
+- Centralize Kubernetes logs.
+- Practice troubleshooting and infrastructure operations.
 
 ---
 
@@ -63,147 +58,94 @@ Changes committed to Git are automatically reconciled with the desired state of 
 
 ### 2.1 High-Level Infrastructure Architecture
 
-The following diagram illustrates the major components and their relationships within the Kubernetes platform.
+The following diagram illustrates the major components and their relationships.
 
 ```mermaid
 flowchart TB
-    USER["Users / Administrators"]
-    GITHUB["GitHub Repository<br/>Source of Truth"]
-    ARGO["Argo CD<br/>GitOps Controller"]
+    USER["Users"]
+    INTERNET["Internet"]
+    GITHUB["GitHub Repository"]
+    ARGO["Argo CD"]
+    K8S["Kubernetes Cluster"]
 
-    subgraph K8S["Kubernetes Cluster"]
-        subgraph APP["Application Layer"]
-            WP["WordPress"]
-            DB["MySQL 8.0"]
-            WPVOL[("WordPress Persistent Storage")]
-            DBVOL[("MySQL Persistent Storage")]
-
-            WP --> DB
-            WP --> WPVOL
-            DB --> DBVOL
-        end
-
-        subgraph OBS["Observability Layer"]
-            PROM["Prometheus"]
-            GRAF["Grafana"]
-            ALERT["Alertmanager"]
-            KSM["kube-state-metrics"]
-            NODE["Node Exporter"]
-            VLOG["VictoriaLogs Server"]
-            VLC["VictoriaLogs Collector"]
-
-            KSM --> PROM
-            NODE --> PROM
-            PROM --> GRAF
-            PROM --> ALERT
-            VLC --> VLOG
-        end
-
-        subgraph NET["Networking Layer"]
-            METALLB["MetalLB"]
-            LB["LoadBalancer Services"]
-            TUNNEL["Cloudflare Tunnel Connector"]
-
-            METALLB --> LB
-        end
+    subgraph APPLICATIONS["Application Layer"]
+        WP["WordPress"]
+        MYSQL["MySQL 8.0"]
     end
 
-    GITHUB -->|"Repository synchronization"| ARGO
-    ARGO -->|"Reconciliation"| K8S
+    subgraph MONITORING["Monitoring Layer"]
+        PROM["Prometheus"]
+        GRAF["Grafana"]
+        ALERT["Alertmanager"]
+        KSM["kube-state-metrics"]
+        NODE["Node Exporter"]
+    end
 
-    USER -->|"Application access"| WP
-    USER -->|"Dashboard access"| GRAF
+    subgraph LOGGING["Logging Layer"]
+        COLLECTOR["VictoriaLogs Collector"]
+        VLOG["VictoriaLogs Server"]
+    end
+
+    subgraph NETWORKING["Networking Layer"]
+        LB["MetalLB"]
+        TUNNEL["Cloudflare Tunnel"]
+    end
+
+    GITHUB -->|"Git Repository"| ARGO
+    ARGO -->|"Sync and Reconcile"| K8S
+
+    USER --> INTERNET
+    INTERNET --> TUNNEL
+    INTERNET --> LB
 
     LB --> WP
     LB --> GRAF
     TUNNEL --> WP
-    TUNNEL --> GRAF
+
+    WP --> MYSQL
+
+    KSM --> PROM
+    NODE --> PROM
+    PROM --> GRAF
+    PROM --> ALERT
+
+    COLLECTOR --> VLOG
 
     style K8S fill:#f5f7fa,stroke:#326CE5,stroke-width:2px
-    style GITHUB fill:#24292e,color:#ffffff
-    style ARGO fill:#ef7b4d,color:#ffffff
-    style VLOG fill:#5b6abf,color:#ffffff
+    style GITHUB fill:#24292e,color:#fff
+    style ARGO fill:#ef7b4d,color:#fff
+    style VLOG fill:#5b6abf,color:#fff
+
+
 2.2 GitOps Deployment Workflow
-Argo CD monitors the Git repository and continuously reconciles the Kubernetes cluster with the desired state defined in Git.
-
-The deployment workflow follows these steps:
-
-A developer modifies Kubernetes manifests or Helm Application definitions.
-
-Changes are committed and pushed to GitHub.
-
-Argo CD detects repository changes.
-
-Argo CD compares the desired state with the actual cluster state.
-
-Argo CD applies the required changes.
-
-Kubernetes creates or updates the corresponding resources.
-
-Argo CD reports synchronization and health status.
+Argo CD continuously monitors the Git repository and reconciles the
+Kubernetes cluster with the desired state defined in Git.
+#chatgpt-mermaid-_r_2qj_{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:16px;fill:rgb(13, 13, 13);}@keyframes edge-animation-frame{from{stroke-dashoffset:0;}}@keyframes dash{to{stroke-dashoffset:0;}}#chatgpt-mermaid-_r_2qj_ .edge-animation-slow{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 50s linear infinite;stroke-linecap:round;}#chatgpt-mermaid-_r_2qj_ .edge-animation-fast{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 20s linear infinite;stroke-linecap:round;}#chatgpt-mermaid-_r_2qj_ .error-icon{fill:rgb(243, 243, 243);}#chatgpt-mermaid-_r_2qj_ .error-text{fill:rgb(13, 13, 13);stroke:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2qj_ .edge-thickness-normal{stroke-width:1px;}#chatgpt-mermaid-_r_2qj_ .edge-thickness-thick{stroke-width:3.5px;}#chatgpt-mermaid-_r_2qj_ .edge-pattern-solid{stroke-dasharray:0;}#chatgpt-mermaid-_r_2qj_ .edge-thickness-invisible{stroke-width:0;fill:none;}#chatgpt-mermaid-_r_2qj_ .edge-pattern-dashed{stroke-dasharray:3;}#chatgpt-mermaid-_r_2qj_ .edge-pattern-dotted{stroke-dasharray:2;}#chatgpt-mermaid-_r_2qj_ .marker{fill:rgb(143, 143, 143);stroke:rgb(143, 143, 143);}#chatgpt-mermaid-_r_2qj_ .marker.cross{stroke:rgb(143, 143, 143);}#chatgpt-mermaid-_r_2qj_ svg{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:16px;}#chatgpt-mermaid-_r_2qj_ p{margin:0;}#chatgpt-mermaid-_r_2qj_ .label{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";color:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2qj_ .cluster-label text{fill:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2qj_ .cluster-label span{color:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2qj_ .cluster-label span p{background-color:transparent;}#chatgpt-mermaid-_r_2qj_ .label text,#chatgpt-mermaid-_r_2qj_ span{fill:rgb(13, 13, 13);color:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2qj_ .node rect,#chatgpt-mermaid-_r_2qj_ .node circle,#chatgpt-mermaid-_r_2qj_ .node ellipse,#chatgpt-mermaid-_r_2qj_ .node polygon,#chatgpt-mermaid-_r_2qj_ .node path{fill:rgb(222, 234, 251);stroke:rgb(83, 154, 248);stroke-width:1px;}#chatgpt-mermaid-_r_2qj_ .rough-node .label text,#chatgpt-mermaid-_r_2qj_ .node .label text,#chatgpt-mermaid-_r_2qj_ .image-shape .label,#chatgpt-mermaid-_r_2qj_ .icon-shape .label{text-anchor:middle;}#chatgpt-mermaid-_r_2qj_ .node .katex path{fill:#000;stroke:#000;stroke-width:1px;}#chatgpt-mermaid-_r_2qj_ .rough-node .label,#chatgpt-mermaid-_r_2qj_ .node .label,#chatgpt-mermaid-_r_2qj_ .image-shape .label,#chatgpt-mermaid-_r_2qj_ .icon-shape .label{text-align:center;}#chatgpt-mermaid-_r_2qj_ .node.clickable{cursor:pointer;}#chatgpt-mermaid-_r_2qj_ .root .anchor path{fill:rgb(143, 143, 143)!important;stroke-width:0;stroke:rgb(143, 143, 143);}#chatgpt-mermaid-_r_2qj_ .arrowheadPath{fill:rgb(143, 143, 143);}#chatgpt-mermaid-_r_2qj_ .edgePath .path{stroke:rgb(143, 143, 143);stroke-width:1px;}#chatgpt-mermaid-_r_2qj_ .flowchart-link{stroke:rgb(143, 143, 143);fill:none;}#chatgpt-mermaid-_r_2qj_ .edgeLabel{background-color:rgb(252, 252, 252);text-align:center;}#chatgpt-mermaid-_r_2qj_ .edgeLabel p{background-color:rgb(252, 252, 252);}#chatgpt-mermaid-_r_2qj_ .edgeLabel rect{opacity:0.5;background-color:rgb(252, 252, 252);fill:rgb(252, 252, 252);}#chatgpt-mermaid-_r_2qj_ .labelBkg{background-color:rgba(252, 252, 252, 0.5);}#chatgpt-mermaid-_r_2qj_ .cluster rect{fill:rgb(243, 243, 243);stroke:rgba(0, 0, 0, 0.1);stroke-width:1px;}#chatgpt-mermaid-_r_2qj_ .cluster text{fill:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2qj_ .cluster span{color:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2qj_ div.mermaidTooltip{position:absolute;text-align:center;max-width:200px;padding:2px;font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:12px;background:rgb(243, 243, 243);border:1px solid rgba(0, 0, 0, 0.1);border-radius:2px;pointer-events:none;z-index:100;}#chatgpt-mermaid-_r_2qj_ .flowchartTitleText{text-anchor:middle;font-size:18px;fill:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2qj_ rect.text{fill:none;stroke-width:0;}#chatgpt-mermaid-_r_2qj_ .icon-shape,#chatgpt-mermaid-_r_2qj_ .image-shape{background-color:rgb(252, 252, 252);text-align:center;}#chatgpt-mermaid-_r_2qj_ .icon-shape p,#chatgpt-mermaid-_r_2qj_ .image-shape p{background-color:rgb(252, 252, 252);padding:2px;}#chatgpt-mermaid-_r_2qj_ .icon-shape .label rect,#chatgpt-mermaid-_r_2qj_ .image-shape .label rect{opacity:0.5;background-color:rgb(252, 252, 252);fill:rgb(252, 252, 252);}#chatgpt-mermaid-_r_2qj_ .label-icon{display:inline-block;height:1em;overflow:visible;vertical-align:-0.125em;}#chatgpt-mermaid-_r_2qj_ .node .label-icon path{fill:currentColor;stroke:revert;stroke-width:revert;}#chatgpt-mermaid-_r_2qj_ .node .neo-node{stroke:rgb(83, 154, 248);}#chatgpt-mermaid-_r_2qj_ [data-look="neo"].node rect,#chatgpt-mermaid-_r_2qj_ [data-look="neo"].cluster rect,#chatgpt-mermaid-_r_2qj_ [data-look="neo"].node polygon{stroke:url(#chatgpt-mermaid-_r_2qj_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_2qj_ [data-look="neo"].swimlane.cluster rect{filter:none;}#chatgpt-mermaid-_r_2qj_ [data-look="neo"].node path{stroke:url(#chatgpt-mermaid-_r_2qj_-gradient);stroke-width:1px;}#chatgpt-mermaid-_r_2qj_ [data-look="neo"].node .outer-path{filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_2qj_ [data-look="neo"].node .neo-line path{stroke:rgb(83, 154, 248);filter:none;}#chatgpt-mermaid-_r_2qj_ [data-look="neo"].node circle{stroke:url(#chatgpt-mermaid-_r_2qj_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_2qj_ [data-look="neo"].node circle .state-start{fill:#000000;}#chatgpt-mermaid-_r_2qj_ [data-look="neo"].icon-shape .icon{fill:url(#chatgpt-mermaid-_r_2qj_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_2qj_ [data-look="neo"].icon-shape .icon-neo path{stroke:url(#chatgpt-mermaid-_r_2qj_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_2qj_ .node text{font-size:14px;font-weight:600;letter-spacing:normal;fill:rgb(0, 79, 153);}#chatgpt-mermaid-_r_2qj_ .edgeLabels text{font-size:13px;font-weight:600;letter-spacing:-0.08px;fill:rgb(0, 79, 153);}#chatgpt-mermaid-_r_2qj_ .node tspan[font-weight="normal"],#chatgpt-mermaid-_r_2qj_ .edgeLabels tspan[font-weight="normal"]{font-weight:600;}#chatgpt-mermaid-_r_2qj_ .edgeLabel .label rect{opacity:1;rx:13px;ry:13px;fill:rgb(245, 250, 255);stroke:rgb(206, 219, 229);stroke-width:1px;}#chatgpt-mermaid-_r_2qj_ .node rect,#chatgpt-mermaid-_r_2qj_ .node circle,#chatgpt-mermaid-_r_2qj_ .node ellipse,#chatgpt-mermaid-_r_2qj_ .node polygon,#chatgpt-mermaid-_r_2qj_ .node path{fill:rgb(229, 243, 255);stroke:rgba(0, 0, 0, 0.1);stroke-width:1px;}#chatgpt-mermaid-_r_2qj_ .node rect{rx:16px;ry:16px;}#chatgpt-mermaid-_r_2qj_ .mermaid-decision .label-container{fill:rgb(245, 250, 255);stroke:rgb(206, 219, 229);stroke-dasharray:2,2;}#chatgpt-mermaid-_r_2qj_ .edgePaths .flowchart-link{stroke:rgb(143, 143, 143);stroke-width:1px;stroke-linecap:round;stroke-linejoin:round;}#chatgpt-mermaid-_r_2qj_ .marker{fill:rgb(143, 143, 143);stroke:rgb(143, 143, 143);}#chatgpt-mermaid-_r_2qj_ :root{--mermaid-font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";}DeveloperGitHub RepositoryArgo CDKubernetes APIKubernetes Resourcesgit pushRepository monitoringApply desired stateHealth status
 
 
-mermaid
-flowchart LR
-    A["Developer"] -->|"Git commit / push"| B["GitHub Repository"]
-    B -->|"Repository monitoring"| C["Argo CD"]
-    C -->|"Reconciliation"| D["Kubernetes API"]
-    D --> E["Kubernetes Resources"]
-    E -->|"Health and Sync Status"| C
+
+
+
 The main GitOps configuration is defined in portfolio-apps.yaml.
 
 Important synchronization settings:
-
-Setting
-
-Description
-
-Automated Sync
-
-Automatically applies changes from Git
-
-Prune
-
-Removes managed resources deleted from Git
-
-Self-Heal
-
-Reconciles manual changes made directly to the cluster
-
-CreateNamespace
-
-Creates destination namespaces when configured
+Setting	Description
+Automated Sync	Automatically applies changes from Git
+Prune	Removes resources deleted from Git
+Self-Heal	Reconciles manual cluster changes
+CreateNamespace	Creates destination namespaces when configured
 
 2.3 Network and Service Exposure
-The platform uses MetalLB for LAN-facing LoadBalancer services and Cloudflare Tunnel for external connectivity.
-
-These are separate network paths.
-
-LAN access through MetalLB:
+#chatgpt-mermaid-_r_2qs_{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:16px;fill:rgb(13, 13, 13);}@keyframes edge-animation-frame{from{stroke-dashoffset:0;}}@keyframes dash{to{stroke-dashoffset:0;}}#chatgpt-mermaid-_r_2qs_ .edge-animation-slow{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 50s linear infinite;stroke-linecap:round;}#chatgpt-mermaid-_r_2qs_ .edge-animation-fast{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 20s linear infinite;stroke-linecap:round;}#chatgpt-mermaid-_r_2qs_ .error-icon{fill:rgb(243, 243, 243);}#chatgpt-mermaid-_r_2qs_ .error-text{fill:rgb(13, 13, 13);stroke:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2qs_ .edge-thickness-normal{stroke-width:1px;}#chatgpt-mermaid-_r_2qs_ .edge-thickness-thick{stroke-width:3.5px;}#chatgpt-mermaid-_r_2qs_ .edge-pattern-solid{stroke-dasharray:0;}#chatgpt-mermaid-_r_2qs_ .edge-thickness-invisible{stroke-width:0;fill:none;}#chatgpt-mermaid-_r_2qs_ .edge-pattern-dashed{stroke-dasharray:3;}#chatgpt-mermaid-_r_2qs_ .edge-pattern-dotted{stroke-dasharray:2;}#chatgpt-mermaid-_r_2qs_ .marker{fill:rgb(143, 143, 143);stroke:rgb(143, 143, 143);}#chatgpt-mermaid-_r_2qs_ .marker.cross{stroke:rgb(143, 143, 143);}#chatgpt-mermaid-_r_2qs_ svg{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:16px;}#chatgpt-mermaid-_r_2qs_ p{margin:0;}#chatgpt-mermaid-_r_2qs_ .label{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";color:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2qs_ .cluster-label text{fill:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2qs_ .cluster-label span{color:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2qs_ .cluster-label span p{background-color:transparent;}#chatgpt-mermaid-_r_2qs_ .label text,#chatgpt-mermaid-_r_2qs_ span{fill:rgb(13, 13, 13);color:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2qs_ .node rect,#chatgpt-mermaid-_r_2qs_ .node circle,#chatgpt-mermaid-_r_2qs_ .node ellipse,#chatgpt-mermaid-_r_2qs_ .node polygon,#chatgpt-mermaid-_r_2qs_ .node path{fill:rgb(222, 234, 251);stroke:rgb(83, 154, 248);stroke-width:1px;}#chatgpt-mermaid-_r_2qs_ .rough-node .label text,#chatgpt-mermaid-_r_2qs_ .node .label text,#chatgpt-mermaid-_r_2qs_ .image-shape .label,#chatgpt-mermaid-_r_2qs_ .icon-shape .label{text-anchor:middle;}#chatgpt-mermaid-_r_2qs_ .node .katex path{fill:#000;stroke:#000;stroke-width:1px;}#chatgpt-mermaid-_r_2qs_ .rough-node .label,#chatgpt-mermaid-_r_2qs_ .node .label,#chatgpt-mermaid-_r_2qs_ .image-shape .label,#chatgpt-mermaid-_r_2qs_ .icon-shape .label{text-align:center;}#chatgpt-mermaid-_r_2qs_ .node.clickable{cursor:pointer;}#chatgpt-mermaid-_r_2qs_ .root .anchor path{fill:rgb(143, 143, 143)!important;stroke-width:0;stroke:rgb(143, 143, 143);}#chatgpt-mermaid-_r_2qs_ .arrowheadPath{fill:rgb(143, 143, 143);}#chatgpt-mermaid-_r_2qs_ .edgePath .path{stroke:rgb(143, 143, 143);stroke-width:1px;}#chatgpt-mermaid-_r_2qs_ .flowchart-link{stroke:rgb(143, 143, 143);fill:none;}#chatgpt-mermaid-_r_2qs_ .edgeLabel{background-color:rgb(252, 252, 252);text-align:center;}#chatgpt-mermaid-_r_2qs_ .edgeLabel p{background-color:rgb(252, 252, 252);}#chatgpt-mermaid-_r_2qs_ .edgeLabel rect{opacity:0.5;background-color:rgb(252, 252, 252);fill:rgb(252, 252, 252);}#chatgpt-mermaid-_r_2qs_ .labelBkg{background-color:rgba(252, 252, 252, 0.5);}#chatgpt-mermaid-_r_2qs_ .cluster rect{fill:rgb(243, 243, 243);stroke:rgba(0, 0, 0, 0.1);stroke-width:1px;}#chatgpt-mermaid-_r_2qs_ .cluster text{fill:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2qs_ .cluster span{color:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2qs_ div.mermaidTooltip{position:absolute;text-align:center;max-width:200px;padding:2px;font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:12px;background:rgb(243, 243, 243);border:1px solid rgba(0, 0, 0, 0.1);border-radius:2px;pointer-events:none;z-index:100;}#chatgpt-mermaid-_r_2qs_ .flowchartTitleText{text-anchor:middle;font-size:18px;fill:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2qs_ rect.text{fill:none;stroke-width:0;}#chatgpt-mermaid-_r_2qs_ .icon-shape,#chatgpt-mermaid-_r_2qs_ .image-shape{background-color:rgb(252, 252, 252);text-align:center;}#chatgpt-mermaid-_r_2qs_ .icon-shape p,#chatgpt-mermaid-_r_2qs_ .image-shape p{background-color:rgb(252, 252, 252);padding:2px;}#chatgpt-mermaid-_r_2qs_ .icon-shape .label rect,#chatgpt-mermaid-_r_2qs_ .image-shape .label rect{opacity:0.5;background-color:rgb(252, 252, 252);fill:rgb(252, 252, 252);}#chatgpt-mermaid-_r_2qs_ .label-icon{display:inline-block;height:1em;overflow:visible;vertical-align:-0.125em;}#chatgpt-mermaid-_r_2qs_ .node .label-icon path{fill:currentColor;stroke:revert;stroke-width:revert;}#chatgpt-mermaid-_r_2qs_ .node .neo-node{stroke:rgb(83, 154, 248);}#chatgpt-mermaid-_r_2qs_ [data-look="neo"].node rect,#chatgpt-mermaid-_r_2qs_ [data-look="neo"].cluster rect,#chatgpt-mermaid-_r_2qs_ [data-look="neo"].node polygon{stroke:url(#chatgpt-mermaid-_r_2qs_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_2qs_ [data-look="neo"].swimlane.cluster rect{filter:none;}#chatgpt-mermaid-_r_2qs_ [data-look="neo"].node path{stroke:url(#chatgpt-mermaid-_r_2qs_-gradient);stroke-width:1px;}#chatgpt-mermaid-_r_2qs_ [data-look="neo"].node .outer-path{filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_2qs_ [data-look="neo"].node .neo-line path{stroke:rgb(83, 154, 248);filter:none;}#chatgpt-mermaid-_r_2qs_ [data-look="neo"].node circle{stroke:url(#chatgpt-mermaid-_r_2qs_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_2qs_ [data-look="neo"].node circle .state-start{fill:#000000;}#chatgpt-mermaid-_r_2qs_ [data-look="neo"].icon-shape .icon{fill:url(#chatgpt-mermaid-_r_2qs_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_2qs_ [data-look="neo"].icon-shape .icon-neo path{stroke:url(#chatgpt-mermaid-_r_2qs_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_2qs_ .node text{font-size:14px;font-weight:600;letter-spacing:normal;fill:rgb(0, 79, 153);}#chatgpt-mermaid-_r_2qs_ .edgeLabels text{font-size:13px;font-weight:600;letter-spacing:-0.08px;fill:rgb(0, 79, 153);}#chatgpt-mermaid-_r_2qs_ .node tspan[font-weight="normal"],#chatgpt-mermaid-_r_2qs_ .edgeLabels tspan[font-weight="normal"]{font-weight:600;}#chatgpt-mermaid-_r_2qs_ .edgeLabel .label rect{opacity:1;rx:13px;ry:13px;fill:rgb(245, 250, 255);stroke:rgb(206, 219, 229);stroke-width:1px;}#chatgpt-mermaid-_r_2qs_ .node rect,#chatgpt-mermaid-_r_2qs_ .node circle,#chatgpt-mermaid-_r_2qs_ .node ellipse,#chatgpt-mermaid-_r_2qs_ .node polygon,#chatgpt-mermaid-_r_2qs_ .node path{fill:rgb(229, 243, 255);stroke:rgba(0, 0, 0, 0.1);stroke-width:1px;}#chatgpt-mermaid-_r_2qs_ .node rect{rx:16px;ry:16px;}#chatgpt-mermaid-_r_2qs_ .mermaid-decision .label-container{fill:rgb(245, 250, 255);stroke:rgb(206, 219, 229);stroke-dasharray:2,2;}#chatgpt-mermaid-_r_2qs_ .edgePaths .flowchart-link{stroke:rgb(143, 143, 143);stroke-width:1px;stroke-linecap:round;stroke-linejoin:round;}#chatgpt-mermaid-_r_2qs_ .marker{fill:rgb(143, 143, 143);stroke:rgb(143, 143, 143);}#chatgpt-mermaid-_r_2qs_ :root{--mermaid-font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";}LAN ClientExternal UserMetalLBCloudflare NetworkCloudflare TunnelWordPress ServiceGrafana ServiceVictoriaLogs NodePort
 
 
-mermaid
-flowchart LR
-    A["LAN Client"] --> B["MetalLB External IP"]
-    B --> C["Kubernetes LoadBalancer Service"]
-    C --> D["Application Pod"]
-External access through Cloudflare Tunnel:
 
 
-mermaid
-flowchart LR
-    A["External User"] --> B["Cloudflare Network"]
-    B --> C["Cloudflare Tunnel"]
-    C --> D["cloudflared Connector"]
-    D --> E["Kubernetes Service"]
-    E --> F["Application Pod"]
-The actual public hostname, Cloudflare Tunnel ingress rules, and routing configuration are maintained outside the Deployment manifest.
+
+The actual Cloudflare public hostname and ingress routing are configured
+outside the Deployment manifest.
 
 3. Repository Structure
-The repository is organized into root-level Argo CD Application definitions and Kubernetes manifests.
-
-
-text
 argocd-gitops-portfolio/
 ├── README.md
 ├── portfolio-apps.yaml
@@ -217,856 +159,342 @@ argocd-gitops-portfolio/
     ├── victoria-logs-nodeport.yaml
     ├── victoria-logs-server.yaml
     └── wordpress-stack.yaml
+
+
 3.1 Root-Level Manifests
-File
-
-Purpose
-
-portfolio-apps.yaml
-
-Main Argo CD Application that deploys resources from the manifests/ directory
-
-prometheus-argocd-app.yaml
-
-Deploys kube-prometheus-stack using Helm
-
-broken-pod.yaml
-
-Intentionally misconfigured Pod manifest for troubleshooting practice
-
-README.md
-
-Project documentation
+File	Purpose
+portfolio-apps.yaml	Main Argo CD Application that deploys resources from the manifests/ directory
+prometheus-argocd-app.yaml	Deploys kube-prometheus-stack using Helm
+broken-pod.yaml	Intentionally broken Pod manifest for troubleshooting practice
+README.md	Project documentation
 
 3.2 Application Manifests
-File
+File	Resource / Application	Purpose
+cloudflared-deployment.yaml	Deployment	Runs Cloudflare Tunnel connectors
+grafana-lb-service.yaml	Service	Exposes Grafana through LoadBalancer
+metallb-config.yaml	IPAddressPool / L2Advertisement	Configures MetalLB address allocation
+victoria-logs-collector.yaml	Argo CD Application	Deploys VictoriaLogs Collector using Helm
+victoria-logs-nodeport.yaml	Service	Exposes VictoriaLogs through NodePort
+victoria-logs-server.yaml	Argo CD Application	Deploys VictoriaLogs Server using Helm
+wordpress-stack.yaml	PVCs / Deployments / Services	Deploys WordPress and MySQL
 
-Resource / Application
-
-Purpose
-
-cloudflared-deployment.yaml
-
-Deployment
-
-Runs Cloudflare Tunnel connectors
-
-grafana-lb-service.yaml
-
-Service
-
-Exposes Grafana through LoadBalancer
-
-metallb-config.yaml
-
-IPAddressPool / L2Advertisement
-
-Configures MetalLB address allocation
-
-victoria-logs-collector.yaml
-
-Argo CD Application
-
-Deploys VictoriaLogs Collector using Helm
-
-victoria-logs-nodeport.yaml
-
-Service
-
-Exposes VictoriaLogs through NodePort
-
-victoria-logs-server.yaml
-
-Argo CD Application
-
-Deploys VictoriaLogs Server using Helm
-
-wordpress-stack.yaml
-
-PVCs / Deployments / Services
-
-Deploys WordPress and MySQL
 
 4. GitOps Configuration
 4.1 Main Argo CD Application
 File: portfolio-apps.yaml
 
-This manifest defines the main Argo CD Application responsible for managing the Kubernetes resources stored in the manifests/ directory.
+This manifest defines the main Argo CD Application.
+Configuration	Value
+Application name	portfolio-apps
+Namespace	argocd
+Repository	https://github.com/david-daisuke/argocd-gitops-portfolio.git
+Target revision	main
+Manifest path	manifests
+Destination namespace	default
+Automated sync	Enabled
+Prune	Enabled
+Self-heal	Enabled
 
-Configuration
-
-Value
-
-Application name
-
-portfolio-apps
-
-Namespace
-
-argocd
-
-Repository
-
-https://github.com/david-daisuke/argocd-gitops-portfolio.git 
-
-Target revision
-
-main
-
-Manifest path
-
-manifests
-
-Destination namespace
-
-default
-
-Automated Sync
-
-Enabled
-
-Prune
-
-Enabled
-
-Self-Heal
-
-Enabled
-
-Argo CD monitors the repository and automatically reconciles the cluster when changes are pushed to GitHub.
-
+Argo CD monitors the manifests/ directory and automatically reconciles
+the cluster when changes are pushed to the Git repository.
 4.2 Monitoring Stack Application
 File: prometheus-argocd-app.yaml
 
-This Application deploys the Prometheus monitoring stack using the Prometheus Community Helm chart.
-
-Configuration
-
-Value
-
-Application name
-
-portfolio-monitoring-stack
-
-Helm repository
-
-https://prometheus-community.github.io/helm-charts 
-
-Chart
-
-kube-prometheus-stack
-
-Chart version
-
-62.7.0
-
-Namespace
-
-monitoring
-
-Automated Sync
-
-Enabled
-
-Prune
-
-Enabled
-
-Self-Heal
-
-Enabled
-
-The Helm chart provides the core monitoring components, including Prometheus, Grafana, Alertmanager, kube-state-metrics, and Node Exporter.
+This Application deploys the Prometheus monitoring stack using Helm.
+Configuration	Value
+Application name	portfolio-monitoring-stack
+Helm repository	https://prometheus-community.github.io/helm-charts
+Chart	kube-prometheus-stack
+Chart version	62.7.0
+Namespace	monitoring
+Automated sync	Enabled
+Prune	Enabled
+Self-heal	Enabled
 
 4.3 VictoriaLogs Applications
-VictoriaLogs Server and VictoriaLogs Collector are managed as separate Argo CD Applications.
+VictoriaLogs Server and Collector are managed as separate Argo CD
+Applications.
 
-This separation provides independent deployment and lifecycle management.
-
-Application
-
-Responsibility
-
-VictoriaLogs Server
-
-Stores and serves collected logs
-
-VictoriaLogs Collector
-
-Collects and forwards logs to the server
-
-Both Applications are defined under the manifests/ directory.
+This separation allows independent deployment and lifecycle management.
 
 5. Application and Infrastructure Details
 5.1 WordPress and MySQL
-WordPress runs as a Kubernetes Deployment with a separate MySQL 8.0 database.
+WordPress runs with a separate MySQL 8.0 database.
 
 Configuration file: manifests/wordpress-stack.yaml
+#chatgpt-mermaid-_r_2r9_{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:16px;fill:rgb(13, 13, 13);}@keyframes edge-animation-frame{from{stroke-dashoffset:0;}}@keyframes dash{to{stroke-dashoffset:0;}}#chatgpt-mermaid-_r_2r9_ .edge-animation-slow{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 50s linear infinite;stroke-linecap:round;}#chatgpt-mermaid-_r_2r9_ .edge-animation-fast{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 20s linear infinite;stroke-linecap:round;}#chatgpt-mermaid-_r_2r9_ .error-icon{fill:rgb(243, 243, 243);}#chatgpt-mermaid-_r_2r9_ .error-text{fill:rgb(13, 13, 13);stroke:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2r9_ .edge-thickness-normal{stroke-width:1px;}#chatgpt-mermaid-_r_2r9_ .edge-thickness-thick{stroke-width:3.5px;}#chatgpt-mermaid-_r_2r9_ .edge-pattern-solid{stroke-dasharray:0;}#chatgpt-mermaid-_r_2r9_ .edge-thickness-invisible{stroke-width:0;fill:none;}#chatgpt-mermaid-_r_2r9_ .edge-pattern-dashed{stroke-dasharray:3;}#chatgpt-mermaid-_r_2r9_ .edge-pattern-dotted{stroke-dasharray:2;}#chatgpt-mermaid-_r_2r9_ .marker{fill:rgb(143, 143, 143);stroke:rgb(143, 143, 143);}#chatgpt-mermaid-_r_2r9_ .marker.cross{stroke:rgb(143, 143, 143);}#chatgpt-mermaid-_r_2r9_ svg{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:16px;}#chatgpt-mermaid-_r_2r9_ p{margin:0;}#chatgpt-mermaid-_r_2r9_ .label{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";color:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2r9_ .cluster-label text{fill:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2r9_ .cluster-label span{color:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2r9_ .cluster-label span p{background-color:transparent;}#chatgpt-mermaid-_r_2r9_ .label text,#chatgpt-mermaid-_r_2r9_ span{fill:rgb(13, 13, 13);color:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2r9_ .node rect,#chatgpt-mermaid-_r_2r9_ .node circle,#chatgpt-mermaid-_r_2r9_ .node ellipse,#chatgpt-mermaid-_r_2r9_ .node polygon,#chatgpt-mermaid-_r_2r9_ .node path{fill:rgb(222, 234, 251);stroke:rgb(83, 154, 248);stroke-width:1px;}#chatgpt-mermaid-_r_2r9_ .rough-node .label text,#chatgpt-mermaid-_r_2r9_ .node .label text,#chatgpt-mermaid-_r_2r9_ .image-shape .label,#chatgpt-mermaid-_r_2r9_ .icon-shape .label{text-anchor:middle;}#chatgpt-mermaid-_r_2r9_ .node .katex path{fill:#000;stroke:#000;stroke-width:1px;}#chatgpt-mermaid-_r_2r9_ .rough-node .label,#chatgpt-mermaid-_r_2r9_ .node .label,#chatgpt-mermaid-_r_2r9_ .image-shape .label,#chatgpt-mermaid-_r_2r9_ .icon-shape .label{text-align:center;}#chatgpt-mermaid-_r_2r9_ .node.clickable{cursor:pointer;}#chatgpt-mermaid-_r_2r9_ .root .anchor path{fill:rgb(143, 143, 143)!important;stroke-width:0;stroke:rgb(143, 143, 143);}#chatgpt-mermaid-_r_2r9_ .arrowheadPath{fill:rgb(143, 143, 143);}#chatgpt-mermaid-_r_2r9_ .edgePath .path{stroke:rgb(143, 143, 143);stroke-width:1px;}#chatgpt-mermaid-_r_2r9_ .flowchart-link{stroke:rgb(143, 143, 143);fill:none;}#chatgpt-mermaid-_r_2r9_ .edgeLabel{background-color:rgb(252, 252, 252);text-align:center;}#chatgpt-mermaid-_r_2r9_ .edgeLabel p{background-color:rgb(252, 252, 252);}#chatgpt-mermaid-_r_2r9_ .edgeLabel rect{opacity:0.5;background-color:rgb(252, 252, 252);fill:rgb(252, 252, 252);}#chatgpt-mermaid-_r_2r9_ .labelBkg{background-color:rgba(252, 252, 252, 0.5);}#chatgpt-mermaid-_r_2r9_ .cluster rect{fill:rgb(243, 243, 243);stroke:rgba(0, 0, 0, 0.1);stroke-width:1px;}#chatgpt-mermaid-_r_2r9_ .cluster text{fill:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2r9_ .cluster span{color:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2r9_ div.mermaidTooltip{position:absolute;text-align:center;max-width:200px;padding:2px;font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:12px;background:rgb(243, 243, 243);border:1px solid rgba(0, 0, 0, 0.1);border-radius:2px;pointer-events:none;z-index:100;}#chatgpt-mermaid-_r_2r9_ .flowchartTitleText{text-anchor:middle;font-size:18px;fill:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2r9_ rect.text{fill:none;stroke-width:0;}#chatgpt-mermaid-_r_2r9_ .icon-shape,#chatgpt-mermaid-_r_2r9_ .image-shape{background-color:rgb(252, 252, 252);text-align:center;}#chatgpt-mermaid-_r_2r9_ .icon-shape p,#chatgpt-mermaid-_r_2r9_ .image-shape p{background-color:rgb(252, 252, 252);padding:2px;}#chatgpt-mermaid-_r_2r9_ .icon-shape .label rect,#chatgpt-mermaid-_r_2r9_ .image-shape .label rect{opacity:0.5;background-color:rgb(252, 252, 252);fill:rgb(252, 252, 252);}#chatgpt-mermaid-_r_2r9_ .label-icon{display:inline-block;height:1em;overflow:visible;vertical-align:-0.125em;}#chatgpt-mermaid-_r_2r9_ .node .label-icon path{fill:currentColor;stroke:revert;stroke-width:revert;}#chatgpt-mermaid-_r_2r9_ .node .neo-node{stroke:rgb(83, 154, 248);}#chatgpt-mermaid-_r_2r9_ [data-look="neo"].node rect,#chatgpt-mermaid-_r_2r9_ [data-look="neo"].cluster rect,#chatgpt-mermaid-_r_2r9_ [data-look="neo"].node polygon{stroke:url(#chatgpt-mermaid-_r_2r9_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_2r9_ [data-look="neo"].swimlane.cluster rect{filter:none;}#chatgpt-mermaid-_r_2r9_ [data-look="neo"].node path{stroke:url(#chatgpt-mermaid-_r_2r9_-gradient);stroke-width:1px;}#chatgpt-mermaid-_r_2r9_ [data-look="neo"].node .outer-path{filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_2r9_ [data-look="neo"].node .neo-line path{stroke:rgb(83, 154, 248);filter:none;}#chatgpt-mermaid-_r_2r9_ [data-look="neo"].node circle{stroke:url(#chatgpt-mermaid-_r_2r9_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_2r9_ [data-look="neo"].node circle .state-start{fill:#000000;}#chatgpt-mermaid-_r_2r9_ [data-look="neo"].icon-shape .icon{fill:url(#chatgpt-mermaid-_r_2r9_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_2r9_ [data-look="neo"].icon-shape .icon-neo path{stroke:url(#chatgpt-mermaid-_r_2r9_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_2r9_ .node text{font-size:14px;font-weight:600;letter-spacing:normal;fill:rgb(0, 79, 153);}#chatgpt-mermaid-_r_2r9_ .edgeLabels text{font-size:13px;font-weight:600;letter-spacing:-0.08px;fill:rgb(0, 79, 153);}#chatgpt-mermaid-_r_2r9_ .node tspan[font-weight="normal"],#chatgpt-mermaid-_r_2r9_ .edgeLabels tspan[font-weight="normal"]{font-weight:600;}#chatgpt-mermaid-_r_2r9_ .edgeLabel .label rect{opacity:1;rx:13px;ry:13px;fill:rgb(245, 250, 255);stroke:rgb(206, 219, 229);stroke-width:1px;}#chatgpt-mermaid-_r_2r9_ .node rect,#chatgpt-mermaid-_r_2r9_ .node circle,#chatgpt-mermaid-_r_2r9_ .node ellipse,#chatgpt-mermaid-_r_2r9_ .node polygon,#chatgpt-mermaid-_r_2r9_ .node path{fill:rgb(229, 243, 255);stroke:rgba(0, 0, 0, 0.1);stroke-width:1px;}#chatgpt-mermaid-_r_2r9_ .node rect{rx:16px;ry:16px;}#chatgpt-mermaid-_r_2r9_ .mermaid-decision .label-container{fill:rgb(245, 250, 255);stroke:rgb(206, 219, 229);stroke-dasharray:2,2;}#chatgpt-mermaid-_r_2r9_ .edgePaths .flowchart-link{stroke:rgb(143, 143, 143);stroke-width:1px;stroke-linecap:round;stroke-linejoin:round;}#chatgpt-mermaid-_r_2r9_ .marker{fill:rgb(143, 143, 143);stroke:rgb(143, 143, 143);}#chatgpt-mermaid-_r_2r9_ :root{--mermaid-font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";}Userwordpress-serviceWordPress Deploymentwp-content-pvcwordpress-mysql-serviceMySQL 8.0 Deploymentwp-mysql-pvcwp-db-secret
 
 
-mermaid
-flowchart TB
-    USER["User"]
-    SVC["WordPress Service"]
-    WP["WordPress Deployment"]
-    WPVOL[("wp-content-pvc")]
-    DBSVC["wordpress-mysql-service"]
-    DB["MySQL 8.0 Deployment"]
-    DBVOL[("wp-mysql-pvc")]
-    SECRET["wp-db-secret"]
 
-    USER --> SVC
-    SVC --> WP
-    WP --> WPVOL
-    WP --> DBSVC
-    DBSVC --> DB
-    DB --> DBVOL
-    SECRET --> DB
-    SECRET --> WP
-Kubernetes Resources
-Resource
 
-Name
 
-Configuration
+Resources:
+Resource	Name	Configuration
+PersistentVolumeClaim	wp-mysql-pvc	10Gi, ReadWriteOnce
+Deployment	wordpress-mysql	MySQL 8.0
+Service	wordpress-mysql-service	TCP 3306
+PersistentVolumeClaim	wp-content-pvc	10Gi, ReadWriteOnce
+Deployment	wordpress	WordPress container
+Service	wordpress-service	LoadBalancer, TCP 80
+Secret	wp-db-secret	Database credentials
 
-PersistentVolumeClaim
+The WordPress container connects to MySQL through the internal Kubernetes
+Service wordpress-mysql-service.
 
-wp-mysql-pvc
-
-10Gi, ReadWriteOnce
-
-Deployment
-
-wordpress-mysql
-
-MySQL 8.0
-
-Service
-
-wordpress-mysql-service
-
-TCP 3306
-
-PersistentVolumeClaim
-
-wp-content-pvc
-
-10Gi, ReadWriteOnce
-
-Deployment
-
-wordpress
-
-WordPress container
-
-Service
-
-wordpress-service
-
-LoadBalancer, TCP 80
-
-Secret
-
-wp-db-secret
-
-Database credentials
-
-The WordPress container connects to MySQL through the internal Kubernetes Service:
-
-wordpress-mysql-service
-
-PersistentVolumeClaims provide persistent storage for the database and WordPress content.
-
-Database credentials are referenced through a Kubernetes Secret rather than being embedded directly in the application configuration.
-
+PersistentVolumeClaims provide storage for database and WordPress content.
 5.2 MetalLB
-MetalLB provides LoadBalancer functionality for this bare-metal Kubernetes environment.
+MetalLB provides LoadBalancer functionality for this bare-metal
+Kubernetes environment.
 
 Configuration file: manifests/metallb-config.yaml
+Resource	Name	Value
+IPAddressPool	default-pool	192.168.2.100-192.168.2.150
+L2Advertisement	default-l2	Advertises the address pool
 
-Resource
-
-Name
-
-Value
-
-IPAddressPool
-
-default-pool
-
-192.168.2.100-192.168.2.150
-
-L2Advertisement
-
-default-l2
-
-Advertises the address pool
+#chatgpt-mermaid-_r_2ri_{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:16px;fill:rgb(13, 13, 13);}@keyframes edge-animation-frame{from{stroke-dashoffset:0;}}@keyframes dash{to{stroke-dashoffset:0;}}#chatgpt-mermaid-_r_2ri_ .edge-animation-slow{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 50s linear infinite;stroke-linecap:round;}#chatgpt-mermaid-_r_2ri_ .edge-animation-fast{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 20s linear infinite;stroke-linecap:round;}#chatgpt-mermaid-_r_2ri_ .error-icon{fill:rgb(243, 243, 243);}#chatgpt-mermaid-_r_2ri_ .error-text{fill:rgb(13, 13, 13);stroke:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2ri_ .edge-thickness-normal{stroke-width:1px;}#chatgpt-mermaid-_r_2ri_ .edge-thickness-thick{stroke-width:3.5px;}#chatgpt-mermaid-_r_2ri_ .edge-pattern-solid{stroke-dasharray:0;}#chatgpt-mermaid-_r_2ri_ .edge-thickness-invisible{stroke-width:0;fill:none;}#chatgpt-mermaid-_r_2ri_ .edge-pattern-dashed{stroke-dasharray:3;}#chatgpt-mermaid-_r_2ri_ .edge-pattern-dotted{stroke-dasharray:2;}#chatgpt-mermaid-_r_2ri_ .marker{fill:rgb(143, 143, 143);stroke:rgb(143, 143, 143);}#chatgpt-mermaid-_r_2ri_ .marker.cross{stroke:rgb(143, 143, 143);}#chatgpt-mermaid-_r_2ri_ svg{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:16px;}#chatgpt-mermaid-_r_2ri_ p{margin:0;}#chatgpt-mermaid-_r_2ri_ .label{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";color:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2ri_ .cluster-label text{fill:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2ri_ .cluster-label span{color:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2ri_ .cluster-label span p{background-color:transparent;}#chatgpt-mermaid-_r_2ri_ .label text,#chatgpt-mermaid-_r_2ri_ span{fill:rgb(13, 13, 13);color:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2ri_ .node rect,#chatgpt-mermaid-_r_2ri_ .node circle,#chatgpt-mermaid-_r_2ri_ .node ellipse,#chatgpt-mermaid-_r_2ri_ .node polygon,#chatgpt-mermaid-_r_2ri_ .node path{fill:rgb(222, 234, 251);stroke:rgb(83, 154, 248);stroke-width:1px;}#chatgpt-mermaid-_r_2ri_ .rough-node .label text,#chatgpt-mermaid-_r_2ri_ .node .label text,#chatgpt-mermaid-_r_2ri_ .image-shape .label,#chatgpt-mermaid-_r_2ri_ .icon-shape .label{text-anchor:middle;}#chatgpt-mermaid-_r_2ri_ .node .katex path{fill:#000;stroke:#000;stroke-width:1px;}#chatgpt-mermaid-_r_2ri_ .rough-node .label,#chatgpt-mermaid-_r_2ri_ .node .label,#chatgpt-mermaid-_r_2ri_ .image-shape .label,#chatgpt-mermaid-_r_2ri_ .icon-shape .label{text-align:center;}#chatgpt-mermaid-_r_2ri_ .node.clickable{cursor:pointer;}#chatgpt-mermaid-_r_2ri_ .root .anchor path{fill:rgb(143, 143, 143)!important;stroke-width:0;stroke:rgb(143, 143, 143);}#chatgpt-mermaid-_r_2ri_ .arrowheadPath{fill:rgb(143, 143, 143);}#chatgpt-mermaid-_r_2ri_ .edgePath .path{stroke:rgb(143, 143, 143);stroke-width:1px;}#chatgpt-mermaid-_r_2ri_ .flowchart-link{stroke:rgb(143, 143, 143);fill:none;}#chatgpt-mermaid-_r_2ri_ .edgeLabel{background-color:rgb(252, 252, 252);text-align:center;}#chatgpt-mermaid-_r_2ri_ .edgeLabel p{background-color:rgb(252, 252, 252);}#chatgpt-mermaid-_r_2ri_ .edgeLabel rect{opacity:0.5;background-color:rgb(252, 252, 252);fill:rgb(252, 252, 252);}#chatgpt-mermaid-_r_2ri_ .labelBkg{background-color:rgba(252, 252, 252, 0.5);}#chatgpt-mermaid-_r_2ri_ .cluster rect{fill:rgb(243, 243, 243);stroke:rgba(0, 0, 0, 0.1);stroke-width:1px;}#chatgpt-mermaid-_r_2ri_ .cluster text{fill:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2ri_ .cluster span{color:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2ri_ div.mermaidTooltip{position:absolute;text-align:center;max-width:200px;padding:2px;font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:12px;background:rgb(243, 243, 243);border:1px solid rgba(0, 0, 0, 0.1);border-radius:2px;pointer-events:none;z-index:100;}#chatgpt-mermaid-_r_2ri_ .flowchartTitleText{text-anchor:middle;font-size:18px;fill:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2ri_ rect.text{fill:none;stroke-width:0;}#chatgpt-mermaid-_r_2ri_ .icon-shape,#chatgpt-mermaid-_r_2ri_ .image-shape{background-color:rgb(252, 252, 252);text-align:center;}#chatgpt-mermaid-_r_2ri_ .icon-shape p,#chatgpt-mermaid-_r_2ri_ .image-shape p{background-color:rgb(252, 252, 252);padding:2px;}#chatgpt-mermaid-_r_2ri_ .icon-shape .label rect,#chatgpt-mermaid-_r_2ri_ .image-shape .label rect{opacity:0.5;background-color:rgb(252, 252, 252);fill:rgb(252, 252, 252);}#chatgpt-mermaid-_r_2ri_ .label-icon{display:inline-block;height:1em;overflow:visible;vertical-align:-0.125em;}#chatgpt-mermaid-_r_2ri_ .node .label-icon path{fill:currentColor;stroke:revert;stroke-width:revert;}#chatgpt-mermaid-_r_2ri_ .node .neo-node{stroke:rgb(83, 154, 248);}#chatgpt-mermaid-_r_2ri_ [data-look="neo"].node rect,#chatgpt-mermaid-_r_2ri_ [data-look="neo"].cluster rect,#chatgpt-mermaid-_r_2ri_ [data-look="neo"].node polygon{stroke:url(#chatgpt-mermaid-_r_2ri_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_2ri_ [data-look="neo"].swimlane.cluster rect{filter:none;}#chatgpt-mermaid-_r_2ri_ [data-look="neo"].node path{stroke:url(#chatgpt-mermaid-_r_2ri_-gradient);stroke-width:1px;}#chatgpt-mermaid-_r_2ri_ [data-look="neo"].node .outer-path{filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_2ri_ [data-look="neo"].node .neo-line path{stroke:rgb(83, 154, 248);filter:none;}#chatgpt-mermaid-_r_2ri_ [data-look="neo"].node circle{stroke:url(#chatgpt-mermaid-_r_2ri_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_2ri_ [data-look="neo"].node circle .state-start{fill:#000000;}#chatgpt-mermaid-_r_2ri_ [data-look="neo"].icon-shape .icon{fill:url(#chatgpt-mermaid-_r_2ri_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_2ri_ [data-look="neo"].icon-shape .icon-neo path{stroke:url(#chatgpt-mermaid-_r_2ri_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_2ri_ .node text{font-size:14px;font-weight:600;letter-spacing:normal;fill:rgb(0, 79, 153);}#chatgpt-mermaid-_r_2ri_ .edgeLabels text{font-size:13px;font-weight:600;letter-spacing:-0.08px;fill:rgb(0, 79, 153);}#chatgpt-mermaid-_r_2ri_ .node tspan[font-weight="normal"],#chatgpt-mermaid-_r_2ri_ .edgeLabels tspan[font-weight="normal"]{font-weight:600;}#chatgpt-mermaid-_r_2ri_ .edgeLabel .label rect{opacity:1;rx:13px;ry:13px;fill:rgb(245, 250, 255);stroke:rgb(206, 219, 229);stroke-width:1px;}#chatgpt-mermaid-_r_2ri_ .node rect,#chatgpt-mermaid-_r_2ri_ .node circle,#chatgpt-mermaid-_r_2ri_ .node ellipse,#chatgpt-mermaid-_r_2ri_ .node polygon,#chatgpt-mermaid-_r_2ri_ .node path{fill:rgb(229, 243, 255);stroke:rgba(0, 0, 0, 0.1);stroke-width:1px;}#chatgpt-mermaid-_r_2ri_ .node rect{rx:16px;ry:16px;}#chatgpt-mermaid-_r_2ri_ .mermaid-decision .label-container{fill:rgb(245, 250, 255);stroke:rgb(206, 219, 229);stroke-dasharray:2,2;}#chatgpt-mermaid-_r_2ri_ .edgePaths .flowchart-link{stroke:rgb(143, 143, 143);stroke-width:1px;stroke-linecap:round;stroke-linejoin:round;}#chatgpt-mermaid-_r_2ri_ .marker{fill:rgb(143, 143, 143);stroke:rgb(143, 143, 143);}#chatgpt-mermaid-_r_2ri_ :root{--mermaid-font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";}LAN ClientLoadBalancer IPMetalLBKubernetes ServiceApplication Pod
 
 
-mermaid
-flowchart LR
-    A["LAN Client"] --> B["LoadBalancer IP"]
-    B --> C["MetalLB"]
-    C --> D["Kubernetes Service"]
-    D --> E["Application Pod"]
-MetalLB allocates external IP addresses to Kubernetes Services of type LoadBalancer.
 
-This allows applications running inside the cluster to be accessed from the local network without requiring a cloud-provider LoadBalancer implementation.
 
+
+MetalLB allocates external IP addresses to Kubernetes Services of type
+LoadBalancer.
 5.3 Cloudflare Tunnel
-Cloudflare Tunnel provides an additional path for external connectivity without directly exposing the cluster through inbound public network ports.
+The Cloudflare Tunnel connector is deployed in the monitoring namespace.
 
 Configuration file: manifests/cloudflared-deployment.yaml
+Setting	Value
+Deployment	cloudflared
+Replicas	2
+Container image	cloudflare/cloudflared:latest
+Tunnel mode	tunnel --no-autoupdate run
+Authentication	Kubernetes Secret cloudflared-secret
+Secret key	tunnel-token
+CPU request	100m
+Memory request	128Mi
+CPU limit	300m
+Memory limit	256Mi
 
-Setting
-
-Value
-
-Deployment
-
-cloudflared
-
-Namespace
-
-monitoring
-
-Replicas
-
-2
-
-Container image
-
-cloudflare/cloudflared:latest
-
-Tunnel mode
-
-tunnel --no-autoupdate run
-
-Authentication
-
-Kubernetes Secret cloudflared-secret
-
-Secret key
-
-tunnel-token
-
-CPU request
-
-100m
-
-Memory request
-
-128Mi
-
-CPU limit
-
-300m
-
-Memory limit
-
-256Mi
-
-The tunnel token is referenced from a Kubernetes Secret instead of being embedded directly in the Deployment manifest.
-
-The Cloudflare Tunnel connector establishes outbound connectivity to Cloudflare.
-
-Public hostname configuration and ingress routing are maintained separately from the Deployment manifest.
-
+The tunnel token is referenced from a Kubernetes Secret rather than
+being embedded directly in the Deployment manifest.
 5.4 Prometheus and Grafana
-The monitoring stack is deployed using the Prometheus Community kube-prometheus-stack Helm chart.
+The monitoring stack is deployed using the Prometheus Community
+kube-prometheus-stack Helm chart.
 
 Configuration file: prometheus-argocd-app.yaml
+Component	Purpose
+Prometheus	Collects and stores metrics
+Grafana	Visualizes metrics in dashboards
+Alertmanager	Handles alert notifications
+kube-state-metrics	Exposes Kubernetes object state metrics
+Node Exporter	Exposes node-level operating system metrics
+Prometheus Operator	Manages Prometheus-related resources
 
-Component
+Helm chart:
+Setting	Value
+Repository	https://prometheus-community.github.io/helm-charts
+Chart	kube-prometheus-stack
+Version	62.7.0
+Namespace	monitoring
 
-Purpose
+Grafana is exposed through the Service defined in
+manifests/grafana-lb-service.yaml.
 
-Prometheus
-
-Collects and stores metrics
-
-Grafana
-
-Visualizes metrics through dashboards
-
-Alertmanager
-
-Handles alert notifications
-
-kube-state-metrics
-
-Exposes Kubernetes object state metrics
-
-Node Exporter
-
-Exposes node-level operating system metrics
-
-Prometheus Operator
-
-Manages Prometheus-related resources
-
-Helm Configuration
-Setting
-
-Value
-
-Repository
-
-https://prometheus-community.github.io/helm-charts 
-
-Chart
-
-kube-prometheus-stack
-
-Version
-
-62.7.0
-
-Namespace
-
-monitoring
-
-Grafana is exposed through the Service defined in:
-
-manifests/grafana-lb-service.yaml
-
-The Service uses type LoadBalancer and forwards TCP port 80 to Grafana's container port 3000.
-
-Prometheus collects metrics from Kubernetes components and exporters, while Grafana provides a centralized interface for visualization and monitoring.
-
+The Service uses type LoadBalancer and forwards TCP port 80 to
+Grafana's container port 3000.
 5.5 VictoriaLogs
-VictoriaLogs provides centralized log storage for the Kubernetes environment.
+VictoriaLogs provides centralized log storage.
 
-The deployment is divided into two independent Argo CD-managed Helm Applications:
-
-VictoriaLogs Server
-
-VictoriaLogs Collector
-
-This architecture separates log ingestion from log storage.
-
+The deployment is divided into two Argo CD-managed Helm Applications:
+- VictoriaLogs Server
+- VictoriaLogs Collector
 VictoriaLogs Server
 Configuration file: manifests/victoria-logs-server.yaml
-
-Setting
-
-Value
-
-Helm chart
-
-victoria-logs-single
-
-Chart version
-
-0.13.10
-
-Release name
-
-vls
-
-Namespace
-
-logging
-
-Retention period
-
-7 days
-
-Storage class
-
-local-path
-
-Persistent storage
-
-10Gi
-
-Memory limit
-
-1Gi
+Setting	Value
+Helm chart	victoria-logs-single
+Chart version	0.13.10
+Release name	vls
+Namespace	logging
+Retention period	7 days
+Storage class	local-path
+Persistent storage	10Gi
+Memory limit	1Gi
 
 VictoriaLogs Collector
 Configuration file: manifests/victoria-logs-collector.yaml
+Setting	Value
+Helm chart	victoria-logs-collector
+Chart version	0.3.7
+Release name	vlc
+Namespace	logging
+Destination	VictoriaLogs Server
+CPU request	100m
+Memory request	128Mi
+CPU limit	300m
+Memory limit	256Mi
 
-Setting
-
-Value
-
-Helm chart
-
-victoria-logs-collector
-
-Chart version
-
-0.3.7
-
-Release name
-
-vlc
-
-Namespace
-
-logging
-
-Destination
-
-VictoriaLogs Server
-
-CPU request
-
-100m
-
-Memory request
-
-128Mi
-
-CPU limit
-
-300m
-
-Memory limit
-
-256Mi
-
-The collector forwards logs to the VictoriaLogs Server through the following internal Kubernetes Service URL:
-
+The collector forwards logs to the server using the following internal
+Kubernetes Service URL:
 http://vls-victoria-logs-single-server.logging.svc.cluster.local:9428
 
-The victoria-logs-nodeport.yaml manifest exposes the VictoriaLogs Server through NodePort 30428.
 
+The victoria-logs-nodeport.yaml manifest exposes the VictoriaLogs
+Server on NodePort 30428.
 Log Collection Architecture
+#chatgpt-mermaid-_r_2rt_{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:16px;fill:rgb(13, 13, 13);}@keyframes edge-animation-frame{from{stroke-dashoffset:0;}}@keyframes dash{to{stroke-dashoffset:0;}}#chatgpt-mermaid-_r_2rt_ .edge-animation-slow{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 50s linear infinite;stroke-linecap:round;}#chatgpt-mermaid-_r_2rt_ .edge-animation-fast{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 20s linear infinite;stroke-linecap:round;}#chatgpt-mermaid-_r_2rt_ .error-icon{fill:rgb(243, 243, 243);}#chatgpt-mermaid-_r_2rt_ .error-text{fill:rgb(13, 13, 13);stroke:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2rt_ .edge-thickness-normal{stroke-width:1px;}#chatgpt-mermaid-_r_2rt_ .edge-thickness-thick{stroke-width:3.5px;}#chatgpt-mermaid-_r_2rt_ .edge-pattern-solid{stroke-dasharray:0;}#chatgpt-mermaid-_r_2rt_ .edge-thickness-invisible{stroke-width:0;fill:none;}#chatgpt-mermaid-_r_2rt_ .edge-pattern-dashed{stroke-dasharray:3;}#chatgpt-mermaid-_r_2rt_ .edge-pattern-dotted{stroke-dasharray:2;}#chatgpt-mermaid-_r_2rt_ .marker{fill:rgb(143, 143, 143);stroke:rgb(143, 143, 143);}#chatgpt-mermaid-_r_2rt_ .marker.cross{stroke:rgb(143, 143, 143);}#chatgpt-mermaid-_r_2rt_ svg{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:16px;}#chatgpt-mermaid-_r_2rt_ p{margin:0;}#chatgpt-mermaid-_r_2rt_ .label{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";color:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2rt_ .cluster-label text{fill:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2rt_ .cluster-label span{color:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2rt_ .cluster-label span p{background-color:transparent;}#chatgpt-mermaid-_r_2rt_ .label text,#chatgpt-mermaid-_r_2rt_ span{fill:rgb(13, 13, 13);color:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2rt_ .node rect,#chatgpt-mermaid-_r_2rt_ .node circle,#chatgpt-mermaid-_r_2rt_ .node ellipse,#chatgpt-mermaid-_r_2rt_ .node polygon,#chatgpt-mermaid-_r_2rt_ .node path{fill:rgb(222, 234, 251);stroke:rgb(83, 154, 248);stroke-width:1px;}#chatgpt-mermaid-_r_2rt_ .rough-node .label text,#chatgpt-mermaid-_r_2rt_ .node .label text,#chatgpt-mermaid-_r_2rt_ .image-shape .label,#chatgpt-mermaid-_r_2rt_ .icon-shape .label{text-anchor:middle;}#chatgpt-mermaid-_r_2rt_ .node .katex path{fill:#000;stroke:#000;stroke-width:1px;}#chatgpt-mermaid-_r_2rt_ .rough-node .label,#chatgpt-mermaid-_r_2rt_ .node .label,#chatgpt-mermaid-_r_2rt_ .image-shape .label,#chatgpt-mermaid-_r_2rt_ .icon-shape .label{text-align:center;}#chatgpt-mermaid-_r_2rt_ .node.clickable{cursor:pointer;}#chatgpt-mermaid-_r_2rt_ .root .anchor path{fill:rgb(143, 143, 143)!important;stroke-width:0;stroke:rgb(143, 143, 143);}#chatgpt-mermaid-_r_2rt_ .arrowheadPath{fill:rgb(143, 143, 143);}#chatgpt-mermaid-_r_2rt_ .edgePath .path{stroke:rgb(143, 143, 143);stroke-width:1px;}#chatgpt-mermaid-_r_2rt_ .flowchart-link{stroke:rgb(143, 143, 143);fill:none;}#chatgpt-mermaid-_r_2rt_ .edgeLabel{background-color:rgb(252, 252, 252);text-align:center;}#chatgpt-mermaid-_r_2rt_ .edgeLabel p{background-color:rgb(252, 252, 252);}#chatgpt-mermaid-_r_2rt_ .edgeLabel rect{opacity:0.5;background-color:rgb(252, 252, 252);fill:rgb(252, 252, 252);}#chatgpt-mermaid-_r_2rt_ .labelBkg{background-color:rgba(252, 252, 252, 0.5);}#chatgpt-mermaid-_r_2rt_ .cluster rect{fill:rgb(243, 243, 243);stroke:rgba(0, 0, 0, 0.1);stroke-width:1px;}#chatgpt-mermaid-_r_2rt_ .cluster text{fill:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2rt_ .cluster span{color:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2rt_ div.mermaidTooltip{position:absolute;text-align:center;max-width:200px;padding:2px;font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:12px;background:rgb(243, 243, 243);border:1px solid rgba(0, 0, 0, 0.1);border-radius:2px;pointer-events:none;z-index:100;}#chatgpt-mermaid-_r_2rt_ .flowchartTitleText{text-anchor:middle;font-size:18px;fill:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2rt_ rect.text{fill:none;stroke-width:0;}#chatgpt-mermaid-_r_2rt_ .icon-shape,#chatgpt-mermaid-_r_2rt_ .image-shape{background-color:rgb(252, 252, 252);text-align:center;}#chatgpt-mermaid-_r_2rt_ .icon-shape p,#chatgpt-mermaid-_r_2rt_ .image-shape p{background-color:rgb(252, 252, 252);padding:2px;}#chatgpt-mermaid-_r_2rt_ .icon-shape .label rect,#chatgpt-mermaid-_r_2rt_ .image-shape .label rect{opacity:0.5;background-color:rgb(252, 252, 252);fill:rgb(252, 252, 252);}#chatgpt-mermaid-_r_2rt_ .label-icon{display:inline-block;height:1em;overflow:visible;vertical-align:-0.125em;}#chatgpt-mermaid-_r_2rt_ .node .label-icon path{fill:currentColor;stroke:revert;stroke-width:revert;}#chatgpt-mermaid-_r_2rt_ .node .neo-node{stroke:rgb(83, 154, 248);}#chatgpt-mermaid-_r_2rt_ [data-look="neo"].node rect,#chatgpt-mermaid-_r_2rt_ [data-look="neo"].cluster rect,#chatgpt-mermaid-_r_2rt_ [data-look="neo"].node polygon{stroke:url(#chatgpt-mermaid-_r_2rt_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_2rt_ [data-look="neo"].swimlane.cluster rect{filter:none;}#chatgpt-mermaid-_r_2rt_ [data-look="neo"].node path{stroke:url(#chatgpt-mermaid-_r_2rt_-gradient);stroke-width:1px;}#chatgpt-mermaid-_r_2rt_ [data-look="neo"].node .outer-path{filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_2rt_ [data-look="neo"].node .neo-line path{stroke:rgb(83, 154, 248);filter:none;}#chatgpt-mermaid-_r_2rt_ [data-look="neo"].node circle{stroke:url(#chatgpt-mermaid-_r_2rt_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_2rt_ [data-look="neo"].node circle .state-start{fill:#000000;}#chatgpt-mermaid-_r_2rt_ [data-look="neo"].icon-shape .icon{fill:url(#chatgpt-mermaid-_r_2rt_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_2rt_ [data-look="neo"].icon-shape .icon-neo path{stroke:url(#chatgpt-mermaid-_r_2rt_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_2rt_ .node text{font-size:14px;font-weight:600;letter-spacing:normal;fill:rgb(0, 79, 153);}#chatgpt-mermaid-_r_2rt_ .edgeLabels text{font-size:13px;font-weight:600;letter-spacing:-0.08px;fill:rgb(0, 79, 153);}#chatgpt-mermaid-_r_2rt_ .node tspan[font-weight="normal"],#chatgpt-mermaid-_r_2rt_ .edgeLabels tspan[font-weight="normal"]{font-weight:600;}#chatgpt-mermaid-_r_2rt_ .edgeLabel .label rect{opacity:1;rx:13px;ry:13px;fill:rgb(245, 250, 255);stroke:rgb(206, 219, 229);stroke-width:1px;}#chatgpt-mermaid-_r_2rt_ .node rect,#chatgpt-mermaid-_r_2rt_ .node circle,#chatgpt-mermaid-_r_2rt_ .node ellipse,#chatgpt-mermaid-_r_2rt_ .node polygon,#chatgpt-mermaid-_r_2rt_ .node path{fill:rgb(229, 243, 255);stroke:rgba(0, 0, 0, 0.1);stroke-width:1px;}#chatgpt-mermaid-_r_2rt_ .node rect{rx:16px;ry:16px;}#chatgpt-mermaid-_r_2rt_ .mermaid-decision .label-container{fill:rgb(245, 250, 255);stroke:rgb(206, 219, 229);stroke-dasharray:2,2;}#chatgpt-mermaid-_r_2rt_ .edgePaths .flowchart-link{stroke:rgb(143, 143, 143);stroke-width:1px;stroke-linecap:round;stroke-linejoin:round;}#chatgpt-mermaid-_r_2rt_ .marker{fill:rgb(143, 143, 143);stroke:rgb(143, 143, 143);}#chatgpt-mermaid-_r_2rt_ :root{--mermaid-font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";}Kubernetes NodesApplication and System PodsVictoriaLogs CollectorVictoriaLogs ServerPersistent VolumeRemote Write
 
-mermaid
-flowchart TB
-    NODES["Kubernetes Nodes"]
-    PODS["Application and System Pods"]
-    COLLECTOR["VictoriaLogs Collector"]
-    SERVER["VictoriaLogs Server"]
-    STORAGE[("Persistent Volume")]
-    REMOTE["Remote Write Sources"]
 
-    NODES --> PODS
-    PODS --> COLLECTOR
-    COLLECTOR --> SERVER
-    REMOTE --> SERVER
-    SERVER --> STORAGE
-The collector is responsible for forwarding logs to the server, while VictoriaLogs Server stores the received log data on persistent storage.
+
+
+
 
 6. Network Exposure
-The repository defines multiple ways to access applications running inside the cluster.
+The repository defines several ways to access applications.
+Application	Kubernetes Service	Port
+WordPress	LoadBalancer	80
+Grafana	LoadBalancer	80
+VictoriaLogs	NodePort	30428
 
-Application
+MetalLB provides LoadBalancer IP allocation for services in the
+bare-metal cluster.
 
-Kubernetes Service
-
-Port
-
-WordPress
-
-LoadBalancer
-
-80
-
-Grafana
-
-LoadBalancer
-
-80
-
-VictoriaLogs
-
-NodePort
-
-30428
-
-Network Access Methods
-Method
-
-Purpose
-
-MetalLB
-
-Provides external IP allocation for LoadBalancer Services
-
-Kubernetes ClusterIP
-
-Provides internal service-to-service communication
-
-NodePort
-
-Exposes VictoriaLogs through a node port
-
-Cloudflare Tunnel
-
-Provides an additional external connectivity path
-
-MetalLB provides LoadBalancer IP allocation for services in the bare-metal cluster.
-
-Cloudflare Tunnel provides external connectivity through an outbound tunnel connection.
-
-The actual public hostname and tunnel ingress routing are configured outside the Deployment manifest.
+Cloudflare Tunnel provides an additional external connectivity path.
+The actual public hostname and tunnel ingress routing are configured
+outside the Deployment manifest.
 
 7. Namespace Organization
-The platform uses separate namespaces to organize infrastructure components and applications.
+The platform uses separate namespaces to organize its components.
+Namespace	Components
+argocd	Argo CD
+default	WordPress and MySQL
+monitoring	Prometheus, Grafana, Alertmanager, Cloudflare Tunnel
+logging	VictoriaLogs Server and Collector
+metallb-system	MetalLB
+kube-system	Kubernetes system components
+local-path-storage	Local Path Provisioner
 
-Namespace
-
-Components
-
-argocd
-
-Argo CD
-
-default
-
-WordPress and MySQL
-
-monitoring
-
-Prometheus, Grafana, Alertmanager, Cloudflare Tunnel
-
-logging
-
-VictoriaLogs Server and Collector
-
-metallb-system
-
-MetalLB
-
-kube-system
-
-Kubernetes system components
-
-local-path-storage
-
-Local Path Provisioner
-
-Namespace separation helps organize workloads and provides a foundation for applying namespace-specific policies and access controls.
 
 8. Operations and Troubleshooting
-The following commands are useful for operating and troubleshooting the Kubernetes platform.
-
+The following commands are useful when operating and troubleshooting
+the platform.
 8.1 Check Cluster Nodes
-
-bash
 kubectl get nodes -o wide
+
+
 8.2 Check Namespaces
-
-bash
 kubectl get namespaces
+
+
 8.3 Check All Pods
-
-bash
 kubectl get pods -A -o wide
+
+
 8.4 Check Services
-
-bash
 kubectl get services -A
+
+
 8.5 Check PersistentVolumeClaims
-
-bash
 kubectl get pvc -A
+
+
 8.6 Check Argo CD Applications
-
-bash
 kubectl get applications -n argocd
+
+
 8.7 Inspect an Argo CD Application
-
-bash
 kubectl describe application portfolio-apps -n argocd
-8.8 Inspect a Pod
 
-bash
+
+8.8 Inspect Pod Events
 kubectl describe pod <pod-name> -n <namespace>
+
+
 8.9 Check Recent Events
-
-bash
 kubectl get events -A --sort-by=.metadata.creationTimestamp
-8.10 Check Deployment Status
 
-bash
-kubectl get deployments -A
-8.11 Check Persistent Volumes
 
-bash
-kubectl get pv
-These commands provide a starting point for investigating workload health, service exposure, storage allocation, and GitOps synchronization issues.
 
 9. Troubleshooting Exercise
-The repository includes broken-pod.yaml, an intentionally misconfigured Pod manifest.
+The repository includes broken-pod.yaml, an intentionally
+misconfigured Pod manifest.
 
-The manifest uses an invalid Nginx image tag:
-
-
-yaml
+It uses an invalid Nginx image tag:
 image: nginx:typo-version
-This file is stored outside the manifests/ directory and is therefore not automatically deployed by the main Argo CD Application.
 
-It can be used to practice identifying and troubleshooting image pull failures.
 
+This manifest is stored outside the manifests/ directory and is not
+automatically deployed by the main Argo CD Application.
+
+It can be used to practice identifying image pull failures.
 9.1 Deploy the Test Pod
-
-bash
 kubectl apply -f broken-pod.yaml
-9.2 Inspect the Pod
 
-bash
+
+9.2 Inspect the Pod
 kubectl get pods
 kubectl describe pod broken-nginx
+
+
 9.3 Inspect Events
-
-bash
 kubectl get events --sort-by=.metadata.creationTimestamp
-The invalid image tag should result in an image pull failure, such as ErrImagePull or ImagePullBackOff.
 
+
+The invalid image tag should result in an image pull failure.
 9.4 Clean Up
 Delete the test resource after completing the exercise:
-
-
-bash
 kubectl delete -f broken-pod.yaml
-This exercise demonstrates basic Kubernetes troubleshooting using Pod status, container events, and image pull diagnostics.
+
+
 
 10. Security and Production Considerations
-This repository is a personal infrastructure portfolio and learning environment.
-
-It demonstrates practical infrastructure management but should not be considered production-ready without additional security, reliability, and operational improvements.
+This repository is a personal infrastructure portfolio and learning
+environment. It should not be considered production-ready without
+further security and reliability work.
 
 Recommended improvements include:
-
-Store credentials in Kubernetes Secrets or an external secret manager.
-
-Avoid committing passwords, API tokens, and tunnel credentials to Git.
-
-Avoid using default or easily guessed passwords.
-
-Pin container images to specific versions or immutable digests instead of relying on latest.
-
-Configure resource requests and limits for all workloads.
-
-Review network exposure and restrict access to administrative services.
-
-Configure backups and test recovery procedures for persistent data.
-
-Consider high availability and storage replication where required.
-
-Review TLS configuration for externally accessible services.
-
-Implement Kubernetes NetworkPolicies where appropriate.
-
-Apply least-privilege RBAC permissions.
-
-Regularly review container images and software dependencies.
-
-Important security note:
-
-Review prometheus-argocd-app.yaml before making this repository public.
-
-If it contains a hardcoded Grafana password, replace that configuration with a secure Secret-based approach.
-
-Never commit actual credentials, private keys, API tokens, or Cloudflare Tunnel tokens to a public Git repository.
+- Store credentials in Kubernetes Secrets or an external secret manager.
+- Avoid committing passwords, API tokens, and tunnel credentials to Git.
+- Avoid using default or easily guessed passwords.
+- Pin container images to specific versions or digests instead of
+  relying on latest.
+- Configure resource requests and limits for all workloads.
+- Review network exposure and restrict access to administrative services.
+- Configure backups and recovery procedures for persistent data.
+- Consider high availability and storage replication where required.
+- Review TLS configuration for externally accessible services.
+Important: Review prometheus-argocd-app.yaml before making this
+repository public. If it still contains a hardcoded Grafana password,
+replace that configuration with a secure Secret-based approach.
+Do not commit actual credentials to the repository.
 
 11. Current Deployment Status
-The following Argo CD Applications were observed in the cluster during the documentation update.
+The following Argo CD Applications were observed in the cluster during
+the documentation update.
+Application	Sync Status	Health Status
+portfolio-apps	Synced	Healthy
+portfolio-monitoring-stack	Synced	Healthy
+victoria-logs-collector	Synced	Healthy
+victoria-logs-server	Synced	Healthy
 
-Application
+These statuses describe the cluster at the time of documentation and
+may change as the infrastructure evolves.
 
-Sync Status
-
-Health Status
-
-portfolio-apps
-
-Synced
-
-Healthy
-
-portfolio-monitoring-stack
-
-Synced
-
-Healthy
-
-victoria-logs-collector
-
-Synced
-
-Healthy
-
-victoria-logs-server
-
-Synced
-
-Healthy
-
-These statuses represent the state of the cluster at the time of documentation.
-
-They may change as infrastructure resources, workloads, or configurations evolve.
-
-For the latest deployment status, check Argo CD directly or run:
-
-
-bash
-kubectl get applications -n argocd
 12. Future Improvements
 Potential future enhancements for this project include:
-
-GitOps and Automation
-Add automated Kubernetes manifest validation.
-
-Introduce Kustomize overlays for environment-specific configurations.
-
-Add CI workflows using GitHub Actions.
-
-Implement automated deployment validation.
-
-Monitoring and Observability
-Add custom Grafana dashboards.
-
-Improve Prometheus alert rules.
-
-Expand centralized log collection.
-
-Introduce alert notification integrations.
-
-Security and Reliability
-Improve secrets management.
-
-Add Kubernetes NetworkPolicies.
-
-Implement workload security controls.
-
-Add automated backup and restore testing.
-
-Document disaster recovery procedures.
-
-Improve storage reliability and availability.
-
-These improvements would further strengthen the platform's maintainability, security, and operational maturity.
+- Add automated validation of Kubernetes manifests.
+- Introduce Kustomize overlays for environment-specific configuration.
+- Add CI workflows using GitHub Actions.
+- Implement automated backup and restore testing.
+- Add more Grafana dashboards and alert rules.
+- Improve secrets management.
+- Add network policies and workload security controls.
+- Document disaster recovery procedures.
 
 13. Author
 David Daisuke
 
-GitHub: david-daisuke 
+GitHub: david-daisuke
 
-This repository demonstrates hands-on experience with:
-
-Kubernetes administration
-
-GitOps and Argo CD
-
-Helm-based application deployment
-
-Infrastructure networking with MetalLB
-
-External connectivity using Cloudflare Tunnel
-
-Monitoring with Prometheus and Grafana
-
-Centralized logging with VictoriaLogs
-
-Persistent storage and stateful workloads
-
-Kubernetes troubleshooting and operations
-
-The goal of this project is to demonstrate the practical design, deployment, and operation of a self-hosted Kubernetes infrastructure platform using declarative configuration and GitOps principles.
+This repository demonstrates hands-on experience with Kubernetes,
+GitOps, Argo CD, Helm, observability, networking, and self-hosted
+applications.
