@@ -1,150 +1,64 @@
 # Kubernetes GitOps Infrastructure Portfolio
 
-![Kubernetes](https://img.shields.io/badge/Kubernetes-326CE5?style=for-the-badge&logo=kubernetes&logoColor=white)
-![Argo CD](https://img.shields.io/badge/Argo_CD-EF7B4D?style=for-the-badge&logo=argo&logoColor=white)
-![Helm](https://img.shields.io/badge/Helm-0F1689?style=for-the-badge&logo=helm&logoColor=white)
-![Prometheus](https://img.shields.io/badge/Prometheus-E6522C?style=for-the-badge&logo=prometheus&logoColor=white)
-![Grafana](https://img.shields.io/badge/Grafana-F46800?style=for-the-badge&logo=grafana&logoColor=white)
+![Kubernetes](https://img.shields.io/badge/Kubernetes-326CE5?logo=kubernetes&logoColor=white)
+![Argo CD](https://img.shields.io/badge/Argo_CD-EF7B4D?logo=argo&logoColor=white)
+![Prometheus](https://img.shields.io/badge/Prometheus-E6522C?logo=prometheus&logoColor=white)
+![Grafana](https://img.shields.io/badge/Grafana-F46800?logo=grafana&logoColor=white)
 
-A GitOps-driven infrastructure portfolio built on a multi-node Kubernetes cluster.
+A self-managed, multi-node Kubernetes environment managed through GitOps.
 
-This repository demonstrates practical implementation of Kubernetes,
-Argo CD, Helm, infrastructure networking, application deployment,
-monitoring, and centralized logging.
+GitHub acts as the source of truth. Argo CD continuously reconciles
+the cluster with the desired configuration stored in this repository.
 
-The Git repository acts as the source of truth for the resources
-managed by Argo CD.
-
----
-
-## 1. Project Overview
-
-This project is a collection of infrastructure services and applications
-running on a self-managed Kubernetes cluster.
-
-### Current Platform Components
+## 1. Platform Overview
 
 | Component | Purpose |
 |---|---|
-| Kubernetes | Container orchestration platform |
+| Kubernetes | Container orchestration |
 | Argo CD | GitOps continuous delivery |
-| Helm | Packaging and deployment of platform components |
-| WordPress | Self-hosted web application |
+| Helm | Application packaging |
+| WordPress | Web application |
 | MySQL 8.0 | WordPress database |
-| MetalLB | LoadBalancer implementation for bare-metal Kubernetes |
-| Prometheus | Metrics collection and monitoring |
-| Grafana | Metrics visualization and dashboards |
-| kube-state-metrics | Kubernetes object state metrics |
-| Node Exporter | Host-level metrics |
-| Alertmanager | Alert handling |
+| MetalLB | Bare-metal LoadBalancer |
+| Prometheus | Metrics collection |
+| Grafana | Metrics visualization |
+| Alertmanager | Alert management |
+| kube-state-metrics | Kubernetes state metrics |
+| Node Exporter | Host metrics |
 | VictoriaLogs | Centralized log storage |
-| VictoriaLogs Collector | Log collection and forwarding |
+| VictoriaLogs Collector | Log collection |
 | Cloudflare Tunnel | External connectivity |
-
-### Project Objectives
-
-- Operate a multi-node Kubernetes environment.
-- Manage infrastructure declaratively through Git.
-- Implement continuous reconciliation using Argo CD.
-- Deploy applications and infrastructure components with Helm.
-- Expose Kubernetes services using MetalLB.
-- Monitor cluster health and performance.
-- Centralize Kubernetes logs.
-- Practice troubleshooting and infrastructure operations.
-
----
 
 ## 2. Architecture
 
 ### 2.1 High-Level Infrastructure Architecture
 
-The following diagram illustrates the major components and their relationships.
-
 ```mermaid
 flowchart TB
-    USER["Users"]
-    INTERNET["Internet"]
-    GITHUB["GitHub Repository"]
-    ARGO["Argo CD"]
-    K8S["Kubernetes Cluster"]
-
-    subgraph APPLICATIONS["Application Layer"]
-        WP["WordPress"]
-        MYSQL["MySQL 8.0"]
-    end
-
-    subgraph MONITORING["Monitoring Layer"]
-        PROM["Prometheus"]
-        GRAF["Grafana"]
-        ALERT["Alertmanager"]
-        KSM["kube-state-metrics"]
-        NODE["Node Exporter"]
-    end
-
-    subgraph LOGGING["Logging Layer"]
-        COLLECTOR["VictoriaLogs Collector"]
-        VLOG["VictoriaLogs Server"]
-    end
-
-    subgraph NETWORKING["Networking Layer"]
-        LB["MetalLB"]
-        TUNNEL["Cloudflare Tunnel"]
-    end
-
-    GITHUB -->|"Git Repository"| ARGO
-    ARGO -->|"Sync and Reconcile"| K8S
-
-    USER --> INTERNET
-    INTERNET --> TUNNEL
-    INTERNET --> LB
-
-    LB --> WP
-    LB --> GRAF
-    TUNNEL --> WP
-
-    WP --> MYSQL
-
-    KSM --> PROM
-    NODE --> PROM
-    PROM --> GRAF
-    PROM --> ALERT
-
-    COLLECTOR --> VLOG
-
-    style K8S fill:#f5f7fa,stroke:#326CE5,stroke-width:2px
-    style GITHUB fill:#24292e,color:#fff
-    style ARGO fill:#ef7b4d,color:#fff
-    style VLOG fill:#5b6abf,color:#fff
+    G["GitHub"] --> A["Argo CD"]
+    A --> K["Kubernetes"]
+    U["Users"] --> M["MetalLB"]
+    U --> C["Cloudflare Tunnel"]
+    M --> W["WordPress"]
+    M --> F["Grafana"]
+    C --> W
+    W --> D["MySQL"]
+    P["Prometheus"] --> F
+    L["Log Collector"] --> V["VictoriaLogs"]
 
 
-2.2 GitOps Deployment Workflow
-Argo CD continuously monitors the Git repository and reconciles the
-Kubernetes cluster with the desired state defined in Git.
-#chatgpt-mermaid-_r_2qj_{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:16px;fill:rgb(13, 13, 13);}@keyframes edge-animation-frame{from{stroke-dashoffset:0;}}@keyframes dash{to{stroke-dashoffset:0;}}#chatgpt-mermaid-_r_2qj_ .edge-animation-slow{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 50s linear infinite;stroke-linecap:round;}#chatgpt-mermaid-_r_2qj_ .edge-animation-fast{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 20s linear infinite;stroke-linecap:round;}#chatgpt-mermaid-_r_2qj_ .error-icon{fill:rgb(243, 243, 243);}#chatgpt-mermaid-_r_2qj_ .error-text{fill:rgb(13, 13, 13);stroke:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2qj_ .edge-thickness-normal{stroke-width:1px;}#chatgpt-mermaid-_r_2qj_ .edge-thickness-thick{stroke-width:3.5px;}#chatgpt-mermaid-_r_2qj_ .edge-pattern-solid{stroke-dasharray:0;}#chatgpt-mermaid-_r_2qj_ .edge-thickness-invisible{stroke-width:0;fill:none;}#chatgpt-mermaid-_r_2qj_ .edge-pattern-dashed{stroke-dasharray:3;}#chatgpt-mermaid-_r_2qj_ .edge-pattern-dotted{stroke-dasharray:2;}#chatgpt-mermaid-_r_2qj_ .marker{fill:rgb(143, 143, 143);stroke:rgb(143, 143, 143);}#chatgpt-mermaid-_r_2qj_ .marker.cross{stroke:rgb(143, 143, 143);}#chatgpt-mermaid-_r_2qj_ svg{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:16px;}#chatgpt-mermaid-_r_2qj_ p{margin:0;}#chatgpt-mermaid-_r_2qj_ .label{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";color:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2qj_ .cluster-label text{fill:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2qj_ .cluster-label span{color:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2qj_ .cluster-label span p{background-color:transparent;}#chatgpt-mermaid-_r_2qj_ .label text,#chatgpt-mermaid-_r_2qj_ span{fill:rgb(13, 13, 13);color:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2qj_ .node rect,#chatgpt-mermaid-_r_2qj_ .node circle,#chatgpt-mermaid-_r_2qj_ .node ellipse,#chatgpt-mermaid-_r_2qj_ .node polygon,#chatgpt-mermaid-_r_2qj_ .node path{fill:rgb(222, 234, 251);stroke:rgb(83, 154, 248);stroke-width:1px;}#chatgpt-mermaid-_r_2qj_ .rough-node .label text,#chatgpt-mermaid-_r_2qj_ .node .label text,#chatgpt-mermaid-_r_2qj_ .image-shape .label,#chatgpt-mermaid-_r_2qj_ .icon-shape .label{text-anchor:middle;}#chatgpt-mermaid-_r_2qj_ .node .katex path{fill:#000;stroke:#000;stroke-width:1px;}#chatgpt-mermaid-_r_2qj_ .rough-node .label,#chatgpt-mermaid-_r_2qj_ .node .label,#chatgpt-mermaid-_r_2qj_ .image-shape .label,#chatgpt-mermaid-_r_2qj_ .icon-shape .label{text-align:center;}#chatgpt-mermaid-_r_2qj_ .node.clickable{cursor:pointer;}#chatgpt-mermaid-_r_2qj_ .root .anchor path{fill:rgb(143, 143, 143)!important;stroke-width:0;stroke:rgb(143, 143, 143);}#chatgpt-mermaid-_r_2qj_ .arrowheadPath{fill:rgb(143, 143, 143);}#chatgpt-mermaid-_r_2qj_ .edgePath .path{stroke:rgb(143, 143, 143);stroke-width:1px;}#chatgpt-mermaid-_r_2qj_ .flowchart-link{stroke:rgb(143, 143, 143);fill:none;}#chatgpt-mermaid-_r_2qj_ .edgeLabel{background-color:rgb(252, 252, 252);text-align:center;}#chatgpt-mermaid-_r_2qj_ .edgeLabel p{background-color:rgb(252, 252, 252);}#chatgpt-mermaid-_r_2qj_ .edgeLabel rect{opacity:0.5;background-color:rgb(252, 252, 252);fill:rgb(252, 252, 252);}#chatgpt-mermaid-_r_2qj_ .labelBkg{background-color:rgba(252, 252, 252, 0.5);}#chatgpt-mermaid-_r_2qj_ .cluster rect{fill:rgb(243, 243, 243);stroke:rgba(0, 0, 0, 0.1);stroke-width:1px;}#chatgpt-mermaid-_r_2qj_ .cluster text{fill:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2qj_ .cluster span{color:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2qj_ div.mermaidTooltip{position:absolute;text-align:center;max-width:200px;padding:2px;font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:12px;background:rgb(243, 243, 243);border:1px solid rgba(0, 0, 0, 0.1);border-radius:2px;pointer-events:none;z-index:100;}#chatgpt-mermaid-_r_2qj_ .flowchartTitleText{text-anchor:middle;font-size:18px;fill:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2qj_ rect.text{fill:none;stroke-width:0;}#chatgpt-mermaid-_r_2qj_ .icon-shape,#chatgpt-mermaid-_r_2qj_ .image-shape{background-color:rgb(252, 252, 252);text-align:center;}#chatgpt-mermaid-_r_2qj_ .icon-shape p,#chatgpt-mermaid-_r_2qj_ .image-shape p{background-color:rgb(252, 252, 252);padding:2px;}#chatgpt-mermaid-_r_2qj_ .icon-shape .label rect,#chatgpt-mermaid-_r_2qj_ .image-shape .label rect{opacity:0.5;background-color:rgb(252, 252, 252);fill:rgb(252, 252, 252);}#chatgpt-mermaid-_r_2qj_ .label-icon{display:inline-block;height:1em;overflow:visible;vertical-align:-0.125em;}#chatgpt-mermaid-_r_2qj_ .node .label-icon path{fill:currentColor;stroke:revert;stroke-width:revert;}#chatgpt-mermaid-_r_2qj_ .node .neo-node{stroke:rgb(83, 154, 248);}#chatgpt-mermaid-_r_2qj_ [data-look="neo"].node rect,#chatgpt-mermaid-_r_2qj_ [data-look="neo"].cluster rect,#chatgpt-mermaid-_r_2qj_ [data-look="neo"].node polygon{stroke:url(#chatgpt-mermaid-_r_2qj_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_2qj_ [data-look="neo"].swimlane.cluster rect{filter:none;}#chatgpt-mermaid-_r_2qj_ [data-look="neo"].node path{stroke:url(#chatgpt-mermaid-_r_2qj_-gradient);stroke-width:1px;}#chatgpt-mermaid-_r_2qj_ [data-look="neo"].node .outer-path{filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_2qj_ [data-look="neo"].node .neo-line path{stroke:rgb(83, 154, 248);filter:none;}#chatgpt-mermaid-_r_2qj_ [data-look="neo"].node circle{stroke:url(#chatgpt-mermaid-_r_2qj_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_2qj_ [data-look="neo"].node circle .state-start{fill:#000000;}#chatgpt-mermaid-_r_2qj_ [data-look="neo"].icon-shape .icon{fill:url(#chatgpt-mermaid-_r_2qj_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_2qj_ [data-look="neo"].icon-shape .icon-neo path{stroke:url(#chatgpt-mermaid-_r_2qj_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_2qj_ .node text{font-size:14px;font-weight:600;letter-spacing:normal;fill:rgb(0, 79, 153);}#chatgpt-mermaid-_r_2qj_ .edgeLabels text{font-size:13px;font-weight:600;letter-spacing:-0.08px;fill:rgb(0, 79, 153);}#chatgpt-mermaid-_r_2qj_ .node tspan[font-weight="normal"],#chatgpt-mermaid-_r_2qj_ .edgeLabels tspan[font-weight="normal"]{font-weight:600;}#chatgpt-mermaid-_r_2qj_ .edgeLabel .label rect{opacity:1;rx:13px;ry:13px;fill:rgb(245, 250, 255);stroke:rgb(206, 219, 229);stroke-width:1px;}#chatgpt-mermaid-_r_2qj_ .node rect,#chatgpt-mermaid-_r_2qj_ .node circle,#chatgpt-mermaid-_r_2qj_ .node ellipse,#chatgpt-mermaid-_r_2qj_ .node polygon,#chatgpt-mermaid-_r_2qj_ .node path{fill:rgb(229, 243, 255);stroke:rgba(0, 0, 0, 0.1);stroke-width:1px;}#chatgpt-mermaid-_r_2qj_ .node rect{rx:16px;ry:16px;}#chatgpt-mermaid-_r_2qj_ .mermaid-decision .label-container{fill:rgb(245, 250, 255);stroke:rgb(206, 219, 229);stroke-dasharray:2,2;}#chatgpt-mermaid-_r_2qj_ .edgePaths .flowchart-link{stroke:rgb(143, 143, 143);stroke-width:1px;stroke-linecap:round;stroke-linejoin:round;}#chatgpt-mermaid-_r_2qj_ .marker{fill:rgb(143, 143, 143);stroke:rgb(143, 143, 143);}#chatgpt-mermaid-_r_2qj_ :root{--mermaid-font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";}DeveloperGitHub RepositoryArgo CDKubernetes APIKubernetes Resourcesgit pushRepository monitoringApply desired stateHealth status
+2.2 GitOps Workflow
+#chatgpt-mermaid-_r_30s_{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:16px;fill:rgb(13, 13, 13);}@keyframes edge-animation-frame{from{stroke-dashoffset:0;}}@keyframes dash{to{stroke-dashoffset:0;}}#chatgpt-mermaid-_r_30s_ .edge-animation-slow{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 50s linear infinite;stroke-linecap:round;}#chatgpt-mermaid-_r_30s_ .edge-animation-fast{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 20s linear infinite;stroke-linecap:round;}#chatgpt-mermaid-_r_30s_ .error-icon{fill:rgb(243, 243, 243);}#chatgpt-mermaid-_r_30s_ .error-text{fill:rgb(13, 13, 13);stroke:rgb(13, 13, 13);}#chatgpt-mermaid-_r_30s_ .edge-thickness-normal{stroke-width:1px;}#chatgpt-mermaid-_r_30s_ .edge-thickness-thick{stroke-width:3.5px;}#chatgpt-mermaid-_r_30s_ .edge-pattern-solid{stroke-dasharray:0;}#chatgpt-mermaid-_r_30s_ .edge-thickness-invisible{stroke-width:0;fill:none;}#chatgpt-mermaid-_r_30s_ .edge-pattern-dashed{stroke-dasharray:3;}#chatgpt-mermaid-_r_30s_ .edge-pattern-dotted{stroke-dasharray:2;}#chatgpt-mermaid-_r_30s_ .marker{fill:rgb(143, 143, 143);stroke:rgb(143, 143, 143);}#chatgpt-mermaid-_r_30s_ .marker.cross{stroke:rgb(143, 143, 143);}#chatgpt-mermaid-_r_30s_ svg{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:16px;}#chatgpt-mermaid-_r_30s_ p{margin:0;}#chatgpt-mermaid-_r_30s_ .label{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";color:rgb(13, 13, 13);}#chatgpt-mermaid-_r_30s_ .cluster-label text{fill:rgb(13, 13, 13);}#chatgpt-mermaid-_r_30s_ .cluster-label span{color:rgb(13, 13, 13);}#chatgpt-mermaid-_r_30s_ .cluster-label span p{background-color:transparent;}#chatgpt-mermaid-_r_30s_ .label text,#chatgpt-mermaid-_r_30s_ span{fill:rgb(13, 13, 13);color:rgb(13, 13, 13);}#chatgpt-mermaid-_r_30s_ .node rect,#chatgpt-mermaid-_r_30s_ .node circle,#chatgpt-mermaid-_r_30s_ .node ellipse,#chatgpt-mermaid-_r_30s_ .node polygon,#chatgpt-mermaid-_r_30s_ .node path{fill:rgb(222, 234, 251);stroke:rgb(83, 154, 248);stroke-width:1px;}#chatgpt-mermaid-_r_30s_ .rough-node .label text,#chatgpt-mermaid-_r_30s_ .node .label text,#chatgpt-mermaid-_r_30s_ .image-shape .label,#chatgpt-mermaid-_r_30s_ .icon-shape .label{text-anchor:middle;}#chatgpt-mermaid-_r_30s_ .node .katex path{fill:#000;stroke:#000;stroke-width:1px;}#chatgpt-mermaid-_r_30s_ .rough-node .label,#chatgpt-mermaid-_r_30s_ .node .label,#chatgpt-mermaid-_r_30s_ .image-shape .label,#chatgpt-mermaid-_r_30s_ .icon-shape .label{text-align:center;}#chatgpt-mermaid-_r_30s_ .node.clickable{cursor:pointer;}#chatgpt-mermaid-_r_30s_ .root .anchor path{fill:rgb(143, 143, 143)!important;stroke-width:0;stroke:rgb(143, 143, 143);}#chatgpt-mermaid-_r_30s_ .arrowheadPath{fill:rgb(143, 143, 143);}#chatgpt-mermaid-_r_30s_ .edgePath .path{stroke:rgb(143, 143, 143);stroke-width:1px;}#chatgpt-mermaid-_r_30s_ .flowchart-link{stroke:rgb(143, 143, 143);fill:none;}#chatgpt-mermaid-_r_30s_ .edgeLabel{background-color:rgb(252, 252, 252);text-align:center;}#chatgpt-mermaid-_r_30s_ .edgeLabel p{background-color:rgb(252, 252, 252);}#chatgpt-mermaid-_r_30s_ .edgeLabel rect{opacity:0.5;background-color:rgb(252, 252, 252);fill:rgb(252, 252, 252);}#chatgpt-mermaid-_r_30s_ .labelBkg{background-color:rgba(252, 252, 252, 0.5);}#chatgpt-mermaid-_r_30s_ .cluster rect{fill:rgb(243, 243, 243);stroke:rgba(0, 0, 0, 0.1);stroke-width:1px;}#chatgpt-mermaid-_r_30s_ .cluster text{fill:rgb(13, 13, 13);}#chatgpt-mermaid-_r_30s_ .cluster span{color:rgb(13, 13, 13);}#chatgpt-mermaid-_r_30s_ div.mermaidTooltip{position:absolute;text-align:center;max-width:200px;padding:2px;font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:12px;background:rgb(243, 243, 243);border:1px solid rgba(0, 0, 0, 0.1);border-radius:2px;pointer-events:none;z-index:100;}#chatgpt-mermaid-_r_30s_ .flowchartTitleText{text-anchor:middle;font-size:18px;fill:rgb(13, 13, 13);}#chatgpt-mermaid-_r_30s_ rect.text{fill:none;stroke-width:0;}#chatgpt-mermaid-_r_30s_ .icon-shape,#chatgpt-mermaid-_r_30s_ .image-shape{background-color:rgb(252, 252, 252);text-align:center;}#chatgpt-mermaid-_r_30s_ .icon-shape p,#chatgpt-mermaid-_r_30s_ .image-shape p{background-color:rgb(252, 252, 252);padding:2px;}#chatgpt-mermaid-_r_30s_ .icon-shape .label rect,#chatgpt-mermaid-_r_30s_ .image-shape .label rect{opacity:0.5;background-color:rgb(252, 252, 252);fill:rgb(252, 252, 252);}#chatgpt-mermaid-_r_30s_ .label-icon{display:inline-block;height:1em;overflow:visible;vertical-align:-0.125em;}#chatgpt-mermaid-_r_30s_ .node .label-icon path{fill:currentColor;stroke:revert;stroke-width:revert;}#chatgpt-mermaid-_r_30s_ .node .neo-node{stroke:rgb(83, 154, 248);}#chatgpt-mermaid-_r_30s_ [data-look="neo"].node rect,#chatgpt-mermaid-_r_30s_ [data-look="neo"].cluster rect,#chatgpt-mermaid-_r_30s_ [data-look="neo"].node polygon{stroke:url(#chatgpt-mermaid-_r_30s_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_30s_ [data-look="neo"].swimlane.cluster rect{filter:none;}#chatgpt-mermaid-_r_30s_ [data-look="neo"].node path{stroke:url(#chatgpt-mermaid-_r_30s_-gradient);stroke-width:1px;}#chatgpt-mermaid-_r_30s_ [data-look="neo"].node .outer-path{filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_30s_ [data-look="neo"].node .neo-line path{stroke:rgb(83, 154, 248);filter:none;}#chatgpt-mermaid-_r_30s_ [data-look="neo"].node circle{stroke:url(#chatgpt-mermaid-_r_30s_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_30s_ [data-look="neo"].node circle .state-start{fill:#000000;}#chatgpt-mermaid-_r_30s_ [data-look="neo"].icon-shape .icon{fill:url(#chatgpt-mermaid-_r_30s_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_30s_ [data-look="neo"].icon-shape .icon-neo path{stroke:url(#chatgpt-mermaid-_r_30s_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_30s_ .node text{font-size:14px;font-weight:600;letter-spacing:normal;fill:rgb(0, 79, 153);}#chatgpt-mermaid-_r_30s_ .edgeLabels text{font-size:13px;font-weight:600;letter-spacing:-0.08px;fill:rgb(0, 79, 153);}#chatgpt-mermaid-_r_30s_ .node tspan[font-weight="normal"],#chatgpt-mermaid-_r_30s_ .edgeLabels tspan[font-weight="normal"]{font-weight:600;}#chatgpt-mermaid-_r_30s_ .edgeLabel .label rect{opacity:1;rx:13px;ry:13px;fill:rgb(245, 250, 255);stroke:rgb(206, 219, 229);stroke-width:1px;}#chatgpt-mermaid-_r_30s_ .node rect,#chatgpt-mermaid-_r_30s_ .node circle,#chatgpt-mermaid-_r_30s_ .node ellipse,#chatgpt-mermaid-_r_30s_ .node polygon,#chatgpt-mermaid-_r_30s_ .node path{fill:rgb(229, 243, 255);stroke:rgba(0, 0, 0, 0.1);stroke-width:1px;}#chatgpt-mermaid-_r_30s_ .node rect{rx:16px;ry:16px;}#chatgpt-mermaid-_r_30s_ .mermaid-decision .label-container{fill:rgb(245, 250, 255);stroke:rgb(206, 219, 229);stroke-dasharray:2,2;}#chatgpt-mermaid-_r_30s_ .edgePaths .flowchart-link{stroke:rgb(143, 143, 143);stroke-width:1px;stroke-linecap:round;stroke-linejoin:round;}#chatgpt-mermaid-_r_30s_ .marker{fill:rgb(143, 143, 143);stroke:rgb(143, 143, 143);}#chatgpt-mermaid-_r_30s_ :root{--mermaid-font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";}DeveloperGitHubArgo CDKubernetes
 
 
 
 
 
-The main GitOps configuration is defined in portfolio-apps.yaml.
+Changes pushed to GitHub are detected by Argo CD.
+Argo CD applies the desired configuration to the cluster.
 
-Important synchronization settings:
-Setting	Description
-Automated Sync	Automatically applies changes from Git
-Prune	Removes resources deleted from Git
-Self-Heal	Reconciles manual cluster changes
-CreateNamespace	Creates destination namespaces when configured
-
-2.3 Network and Service Exposure
-#chatgpt-mermaid-_r_2qs_{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:16px;fill:rgb(13, 13, 13);}@keyframes edge-animation-frame{from{stroke-dashoffset:0;}}@keyframes dash{to{stroke-dashoffset:0;}}#chatgpt-mermaid-_r_2qs_ .edge-animation-slow{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 50s linear infinite;stroke-linecap:round;}#chatgpt-mermaid-_r_2qs_ .edge-animation-fast{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 20s linear infinite;stroke-linecap:round;}#chatgpt-mermaid-_r_2qs_ .error-icon{fill:rgb(243, 243, 243);}#chatgpt-mermaid-_r_2qs_ .error-text{fill:rgb(13, 13, 13);stroke:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2qs_ .edge-thickness-normal{stroke-width:1px;}#chatgpt-mermaid-_r_2qs_ .edge-thickness-thick{stroke-width:3.5px;}#chatgpt-mermaid-_r_2qs_ .edge-pattern-solid{stroke-dasharray:0;}#chatgpt-mermaid-_r_2qs_ .edge-thickness-invisible{stroke-width:0;fill:none;}#chatgpt-mermaid-_r_2qs_ .edge-pattern-dashed{stroke-dasharray:3;}#chatgpt-mermaid-_r_2qs_ .edge-pattern-dotted{stroke-dasharray:2;}#chatgpt-mermaid-_r_2qs_ .marker{fill:rgb(143, 143, 143);stroke:rgb(143, 143, 143);}#chatgpt-mermaid-_r_2qs_ .marker.cross{stroke:rgb(143, 143, 143);}#chatgpt-mermaid-_r_2qs_ svg{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:16px;}#chatgpt-mermaid-_r_2qs_ p{margin:0;}#chatgpt-mermaid-_r_2qs_ .label{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";color:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2qs_ .cluster-label text{fill:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2qs_ .cluster-label span{color:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2qs_ .cluster-label span p{background-color:transparent;}#chatgpt-mermaid-_r_2qs_ .label text,#chatgpt-mermaid-_r_2qs_ span{fill:rgb(13, 13, 13);color:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2qs_ .node rect,#chatgpt-mermaid-_r_2qs_ .node circle,#chatgpt-mermaid-_r_2qs_ .node ellipse,#chatgpt-mermaid-_r_2qs_ .node polygon,#chatgpt-mermaid-_r_2qs_ .node path{fill:rgb(222, 234, 251);stroke:rgb(83, 154, 248);stroke-width:1px;}#chatgpt-mermaid-_r_2qs_ .rough-node .label text,#chatgpt-mermaid-_r_2qs_ .node .label text,#chatgpt-mermaid-_r_2qs_ .image-shape .label,#chatgpt-mermaid-_r_2qs_ .icon-shape .label{text-anchor:middle;}#chatgpt-mermaid-_r_2qs_ .node .katex path{fill:#000;stroke:#000;stroke-width:1px;}#chatgpt-mermaid-_r_2qs_ .rough-node .label,#chatgpt-mermaid-_r_2qs_ .node .label,#chatgpt-mermaid-_r_2qs_ .image-shape .label,#chatgpt-mermaid-_r_2qs_ .icon-shape .label{text-align:center;}#chatgpt-mermaid-_r_2qs_ .node.clickable{cursor:pointer;}#chatgpt-mermaid-_r_2qs_ .root .anchor path{fill:rgb(143, 143, 143)!important;stroke-width:0;stroke:rgb(143, 143, 143);}#chatgpt-mermaid-_r_2qs_ .arrowheadPath{fill:rgb(143, 143, 143);}#chatgpt-mermaid-_r_2qs_ .edgePath .path{stroke:rgb(143, 143, 143);stroke-width:1px;}#chatgpt-mermaid-_r_2qs_ .flowchart-link{stroke:rgb(143, 143, 143);fill:none;}#chatgpt-mermaid-_r_2qs_ .edgeLabel{background-color:rgb(252, 252, 252);text-align:center;}#chatgpt-mermaid-_r_2qs_ .edgeLabel p{background-color:rgb(252, 252, 252);}#chatgpt-mermaid-_r_2qs_ .edgeLabel rect{opacity:0.5;background-color:rgb(252, 252, 252);fill:rgb(252, 252, 252);}#chatgpt-mermaid-_r_2qs_ .labelBkg{background-color:rgba(252, 252, 252, 0.5);}#chatgpt-mermaid-_r_2qs_ .cluster rect{fill:rgb(243, 243, 243);stroke:rgba(0, 0, 0, 0.1);stroke-width:1px;}#chatgpt-mermaid-_r_2qs_ .cluster text{fill:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2qs_ .cluster span{color:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2qs_ div.mermaidTooltip{position:absolute;text-align:center;max-width:200px;padding:2px;font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:12px;background:rgb(243, 243, 243);border:1px solid rgba(0, 0, 0, 0.1);border-radius:2px;pointer-events:none;z-index:100;}#chatgpt-mermaid-_r_2qs_ .flowchartTitleText{text-anchor:middle;font-size:18px;fill:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2qs_ rect.text{fill:none;stroke-width:0;}#chatgpt-mermaid-_r_2qs_ .icon-shape,#chatgpt-mermaid-_r_2qs_ .image-shape{background-color:rgb(252, 252, 252);text-align:center;}#chatgpt-mermaid-_r_2qs_ .icon-shape p,#chatgpt-mermaid-_r_2qs_ .image-shape p{background-color:rgb(252, 252, 252);padding:2px;}#chatgpt-mermaid-_r_2qs_ .icon-shape .label rect,#chatgpt-mermaid-_r_2qs_ .image-shape .label rect{opacity:0.5;background-color:rgb(252, 252, 252);fill:rgb(252, 252, 252);}#chatgpt-mermaid-_r_2qs_ .label-icon{display:inline-block;height:1em;overflow:visible;vertical-align:-0.125em;}#chatgpt-mermaid-_r_2qs_ .node .label-icon path{fill:currentColor;stroke:revert;stroke-width:revert;}#chatgpt-mermaid-_r_2qs_ .node .neo-node{stroke:rgb(83, 154, 248);}#chatgpt-mermaid-_r_2qs_ [data-look="neo"].node rect,#chatgpt-mermaid-_r_2qs_ [data-look="neo"].cluster rect,#chatgpt-mermaid-_r_2qs_ [data-look="neo"].node polygon{stroke:url(#chatgpt-mermaid-_r_2qs_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_2qs_ [data-look="neo"].swimlane.cluster rect{filter:none;}#chatgpt-mermaid-_r_2qs_ [data-look="neo"].node path{stroke:url(#chatgpt-mermaid-_r_2qs_-gradient);stroke-width:1px;}#chatgpt-mermaid-_r_2qs_ [data-look="neo"].node .outer-path{filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_2qs_ [data-look="neo"].node .neo-line path{stroke:rgb(83, 154, 248);filter:none;}#chatgpt-mermaid-_r_2qs_ [data-look="neo"].node circle{stroke:url(#chatgpt-mermaid-_r_2qs_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_2qs_ [data-look="neo"].node circle .state-start{fill:#000000;}#chatgpt-mermaid-_r_2qs_ [data-look="neo"].icon-shape .icon{fill:url(#chatgpt-mermaid-_r_2qs_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_2qs_ [data-look="neo"].icon-shape .icon-neo path{stroke:url(#chatgpt-mermaid-_r_2qs_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_2qs_ .node text{font-size:14px;font-weight:600;letter-spacing:normal;fill:rgb(0, 79, 153);}#chatgpt-mermaid-_r_2qs_ .edgeLabels text{font-size:13px;font-weight:600;letter-spacing:-0.08px;fill:rgb(0, 79, 153);}#chatgpt-mermaid-_r_2qs_ .node tspan[font-weight="normal"],#chatgpt-mermaid-_r_2qs_ .edgeLabels tspan[font-weight="normal"]{font-weight:600;}#chatgpt-mermaid-_r_2qs_ .edgeLabel .label rect{opacity:1;rx:13px;ry:13px;fill:rgb(245, 250, 255);stroke:rgb(206, 219, 229);stroke-width:1px;}#chatgpt-mermaid-_r_2qs_ .node rect,#chatgpt-mermaid-_r_2qs_ .node circle,#chatgpt-mermaid-_r_2qs_ .node ellipse,#chatgpt-mermaid-_r_2qs_ .node polygon,#chatgpt-mermaid-_r_2qs_ .node path{fill:rgb(229, 243, 255);stroke:rgba(0, 0, 0, 0.1);stroke-width:1px;}#chatgpt-mermaid-_r_2qs_ .node rect{rx:16px;ry:16px;}#chatgpt-mermaid-_r_2qs_ .mermaid-decision .label-container{fill:rgb(245, 250, 255);stroke:rgb(206, 219, 229);stroke-dasharray:2,2;}#chatgpt-mermaid-_r_2qs_ .edgePaths .flowchart-link{stroke:rgb(143, 143, 143);stroke-width:1px;stroke-linecap:round;stroke-linejoin:round;}#chatgpt-mermaid-_r_2qs_ .marker{fill:rgb(143, 143, 143);stroke:rgb(143, 143, 143);}#chatgpt-mermaid-_r_2qs_ :root{--mermaid-font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";}LAN ClientExternal UserMetalLBCloudflare NetworkCloudflare TunnelWordPress ServiceGrafana ServiceVictoriaLogs NodePort
-
-
-
-
-
-The actual Cloudflare public hostname and ingress routing are configured
-outside the Deployment manifest.
-
+The main Application uses automated synchronization, pruning,
+and self-healing.
 3. Repository Structure
 argocd-gitops-portfolio/
 ├── README.md
@@ -161,340 +75,200 @@ argocd-gitops-portfolio/
     └── wordpress-stack.yaml
 
 
-3.1 Root-Level Manifests
-File	Purpose
-portfolio-apps.yaml	Main Argo CD Application that deploys resources from the manifests/ directory
-prometheus-argocd-app.yaml	Deploys kube-prometheus-stack using Helm
-broken-pod.yaml	Intentionally broken Pod manifest for troubleshooting practice
-README.md	Project documentation
+4. Manifest Reference
+Root directory
+File	Description
+portfolio-apps.yaml	Main Argo CD Application
+prometheus-argocd-app.yaml	Prometheus monitoring stack
+broken-pod.yaml	Troubleshooting exercise
 
-3.2 Application Manifests
-File	Resource / Application	Purpose
-cloudflared-deployment.yaml	Deployment	Runs Cloudflare Tunnel connectors
-grafana-lb-service.yaml	Service	Exposes Grafana through LoadBalancer
-metallb-config.yaml	IPAddressPool / L2Advertisement	Configures MetalLB address allocation
-victoria-logs-collector.yaml	Argo CD Application	Deploys VictoriaLogs Collector using Helm
-victoria-logs-nodeport.yaml	Service	Exposes VictoriaLogs through NodePort
-victoria-logs-server.yaml	Argo CD Application	Deploys VictoriaLogs Server using Helm
-wordpress-stack.yaml	PVCs / Deployments / Services	Deploys WordPress and MySQL
+manifests directory
+File	Description
+cloudflared-deployment.yaml	Cloudflare Tunnel Deployment
+grafana-lb-service.yaml	Grafana LoadBalancer Service
+metallb-config.yaml	MetalLB address pool and L2 advertisement
+victoria-logs-collector.yaml	VictoriaLogs Collector Application
+victoria-logs-nodeport.yaml	VictoriaLogs NodePort Service
+victoria-logs-server.yaml	VictoriaLogs Server Application
+wordpress-stack.yaml	WordPress and MySQL resources
 
-
-4. GitOps Configuration
-4.1 Main Argo CD Application
+5. GitOps Applications
+5.1 Main Application
 File: portfolio-apps.yaml
-
-This manifest defines the main Argo CD Application.
-Configuration	Value
-Application name	portfolio-apps
+Setting	Value
+Application	portfolio-apps
 Namespace	argocd
-Repository	https://github.com/david-daisuke/argocd-gitops-portfolio.git
-Target revision	main
+Git branch	main
 Manifest path	manifests
-Destination namespace	default
 Automated sync	Enabled
 Prune	Enabled
 Self-heal	Enabled
 
-Argo CD monitors the manifests/ directory and automatically reconciles
-the cluster when changes are pushed to the Git repository.
-4.2 Monitoring Stack Application
+5.2 Monitoring Stack
 File: prometheus-argocd-app.yaml
-
-This Application deploys the Prometheus monitoring stack using Helm.
-Configuration	Value
-Application name	portfolio-monitoring-stack
-Helm repository	https://prometheus-community.github.io/helm-charts
-Chart	kube-prometheus-stack
+Setting	Value
+Application	portfolio-monitoring-stack
+Helm chart	kube-prometheus-stack
 Chart version	62.7.0
 Namespace	monitoring
-Automated sync	Enabled
-Prune	Enabled
-Self-heal	Enabled
 
-4.3 VictoriaLogs Applications
-VictoriaLogs Server and Collector are managed as separate Argo CD
-Applications.
+The stack includes Prometheus, Grafana, Alertmanager,
+kube-state-metrics, Node Exporter, and Prometheus Operator.
+5.3 VictoriaLogs
+Two separate Argo CD Applications manage the logging platform.
+Component	Helm chart	Version
+Server	victoria-logs-single	0.13.10
+Collector	victoria-logs-collector	0.3.7
 
-This separation allows independent deployment and lifecycle management.
-
-5. Application and Infrastructure Details
-5.1 WordPress and MySQL
-WordPress runs with a separate MySQL 8.0 database.
-
-Configuration file: manifests/wordpress-stack.yaml
-#chatgpt-mermaid-_r_2r9_{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:16px;fill:rgb(13, 13, 13);}@keyframes edge-animation-frame{from{stroke-dashoffset:0;}}@keyframes dash{to{stroke-dashoffset:0;}}#chatgpt-mermaid-_r_2r9_ .edge-animation-slow{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 50s linear infinite;stroke-linecap:round;}#chatgpt-mermaid-_r_2r9_ .edge-animation-fast{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 20s linear infinite;stroke-linecap:round;}#chatgpt-mermaid-_r_2r9_ .error-icon{fill:rgb(243, 243, 243);}#chatgpt-mermaid-_r_2r9_ .error-text{fill:rgb(13, 13, 13);stroke:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2r9_ .edge-thickness-normal{stroke-width:1px;}#chatgpt-mermaid-_r_2r9_ .edge-thickness-thick{stroke-width:3.5px;}#chatgpt-mermaid-_r_2r9_ .edge-pattern-solid{stroke-dasharray:0;}#chatgpt-mermaid-_r_2r9_ .edge-thickness-invisible{stroke-width:0;fill:none;}#chatgpt-mermaid-_r_2r9_ .edge-pattern-dashed{stroke-dasharray:3;}#chatgpt-mermaid-_r_2r9_ .edge-pattern-dotted{stroke-dasharray:2;}#chatgpt-mermaid-_r_2r9_ .marker{fill:rgb(143, 143, 143);stroke:rgb(143, 143, 143);}#chatgpt-mermaid-_r_2r9_ .marker.cross{stroke:rgb(143, 143, 143);}#chatgpt-mermaid-_r_2r9_ svg{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:16px;}#chatgpt-mermaid-_r_2r9_ p{margin:0;}#chatgpt-mermaid-_r_2r9_ .label{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";color:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2r9_ .cluster-label text{fill:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2r9_ .cluster-label span{color:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2r9_ .cluster-label span p{background-color:transparent;}#chatgpt-mermaid-_r_2r9_ .label text,#chatgpt-mermaid-_r_2r9_ span{fill:rgb(13, 13, 13);color:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2r9_ .node rect,#chatgpt-mermaid-_r_2r9_ .node circle,#chatgpt-mermaid-_r_2r9_ .node ellipse,#chatgpt-mermaid-_r_2r9_ .node polygon,#chatgpt-mermaid-_r_2r9_ .node path{fill:rgb(222, 234, 251);stroke:rgb(83, 154, 248);stroke-width:1px;}#chatgpt-mermaid-_r_2r9_ .rough-node .label text,#chatgpt-mermaid-_r_2r9_ .node .label text,#chatgpt-mermaid-_r_2r9_ .image-shape .label,#chatgpt-mermaid-_r_2r9_ .icon-shape .label{text-anchor:middle;}#chatgpt-mermaid-_r_2r9_ .node .katex path{fill:#000;stroke:#000;stroke-width:1px;}#chatgpt-mermaid-_r_2r9_ .rough-node .label,#chatgpt-mermaid-_r_2r9_ .node .label,#chatgpt-mermaid-_r_2r9_ .image-shape .label,#chatgpt-mermaid-_r_2r9_ .icon-shape .label{text-align:center;}#chatgpt-mermaid-_r_2r9_ .node.clickable{cursor:pointer;}#chatgpt-mermaid-_r_2r9_ .root .anchor path{fill:rgb(143, 143, 143)!important;stroke-width:0;stroke:rgb(143, 143, 143);}#chatgpt-mermaid-_r_2r9_ .arrowheadPath{fill:rgb(143, 143, 143);}#chatgpt-mermaid-_r_2r9_ .edgePath .path{stroke:rgb(143, 143, 143);stroke-width:1px;}#chatgpt-mermaid-_r_2r9_ .flowchart-link{stroke:rgb(143, 143, 143);fill:none;}#chatgpt-mermaid-_r_2r9_ .edgeLabel{background-color:rgb(252, 252, 252);text-align:center;}#chatgpt-mermaid-_r_2r9_ .edgeLabel p{background-color:rgb(252, 252, 252);}#chatgpt-mermaid-_r_2r9_ .edgeLabel rect{opacity:0.5;background-color:rgb(252, 252, 252);fill:rgb(252, 252, 252);}#chatgpt-mermaid-_r_2r9_ .labelBkg{background-color:rgba(252, 252, 252, 0.5);}#chatgpt-mermaid-_r_2r9_ .cluster rect{fill:rgb(243, 243, 243);stroke:rgba(0, 0, 0, 0.1);stroke-width:1px;}#chatgpt-mermaid-_r_2r9_ .cluster text{fill:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2r9_ .cluster span{color:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2r9_ div.mermaidTooltip{position:absolute;text-align:center;max-width:200px;padding:2px;font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:12px;background:rgb(243, 243, 243);border:1px solid rgba(0, 0, 0, 0.1);border-radius:2px;pointer-events:none;z-index:100;}#chatgpt-mermaid-_r_2r9_ .flowchartTitleText{text-anchor:middle;font-size:18px;fill:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2r9_ rect.text{fill:none;stroke-width:0;}#chatgpt-mermaid-_r_2r9_ .icon-shape,#chatgpt-mermaid-_r_2r9_ .image-shape{background-color:rgb(252, 252, 252);text-align:center;}#chatgpt-mermaid-_r_2r9_ .icon-shape p,#chatgpt-mermaid-_r_2r9_ .image-shape p{background-color:rgb(252, 252, 252);padding:2px;}#chatgpt-mermaid-_r_2r9_ .icon-shape .label rect,#chatgpt-mermaid-_r_2r9_ .image-shape .label rect{opacity:0.5;background-color:rgb(252, 252, 252);fill:rgb(252, 252, 252);}#chatgpt-mermaid-_r_2r9_ .label-icon{display:inline-block;height:1em;overflow:visible;vertical-align:-0.125em;}#chatgpt-mermaid-_r_2r9_ .node .label-icon path{fill:currentColor;stroke:revert;stroke-width:revert;}#chatgpt-mermaid-_r_2r9_ .node .neo-node{stroke:rgb(83, 154, 248);}#chatgpt-mermaid-_r_2r9_ [data-look="neo"].node rect,#chatgpt-mermaid-_r_2r9_ [data-look="neo"].cluster rect,#chatgpt-mermaid-_r_2r9_ [data-look="neo"].node polygon{stroke:url(#chatgpt-mermaid-_r_2r9_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_2r9_ [data-look="neo"].swimlane.cluster rect{filter:none;}#chatgpt-mermaid-_r_2r9_ [data-look="neo"].node path{stroke:url(#chatgpt-mermaid-_r_2r9_-gradient);stroke-width:1px;}#chatgpt-mermaid-_r_2r9_ [data-look="neo"].node .outer-path{filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_2r9_ [data-look="neo"].node .neo-line path{stroke:rgb(83, 154, 248);filter:none;}#chatgpt-mermaid-_r_2r9_ [data-look="neo"].node circle{stroke:url(#chatgpt-mermaid-_r_2r9_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_2r9_ [data-look="neo"].node circle .state-start{fill:#000000;}#chatgpt-mermaid-_r_2r9_ [data-look="neo"].icon-shape .icon{fill:url(#chatgpt-mermaid-_r_2r9_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_2r9_ [data-look="neo"].icon-shape .icon-neo path{stroke:url(#chatgpt-mermaid-_r_2r9_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_2r9_ .node text{font-size:14px;font-weight:600;letter-spacing:normal;fill:rgb(0, 79, 153);}#chatgpt-mermaid-_r_2r9_ .edgeLabels text{font-size:13px;font-weight:600;letter-spacing:-0.08px;fill:rgb(0, 79, 153);}#chatgpt-mermaid-_r_2r9_ .node tspan[font-weight="normal"],#chatgpt-mermaid-_r_2r9_ .edgeLabels tspan[font-weight="normal"]{font-weight:600;}#chatgpt-mermaid-_r_2r9_ .edgeLabel .label rect{opacity:1;rx:13px;ry:13px;fill:rgb(245, 250, 255);stroke:rgb(206, 219, 229);stroke-width:1px;}#chatgpt-mermaid-_r_2r9_ .node rect,#chatgpt-mermaid-_r_2r9_ .node circle,#chatgpt-mermaid-_r_2r9_ .node ellipse,#chatgpt-mermaid-_r_2r9_ .node polygon,#chatgpt-mermaid-_r_2r9_ .node path{fill:rgb(229, 243, 255);stroke:rgba(0, 0, 0, 0.1);stroke-width:1px;}#chatgpt-mermaid-_r_2r9_ .node rect{rx:16px;ry:16px;}#chatgpt-mermaid-_r_2r9_ .mermaid-decision .label-container{fill:rgb(245, 250, 255);stroke:rgb(206, 219, 229);stroke-dasharray:2,2;}#chatgpt-mermaid-_r_2r9_ .edgePaths .flowchart-link{stroke:rgb(143, 143, 143);stroke-width:1px;stroke-linecap:round;stroke-linejoin:round;}#chatgpt-mermaid-_r_2r9_ .marker{fill:rgb(143, 143, 143);stroke:rgb(143, 143, 143);}#chatgpt-mermaid-_r_2r9_ :root{--mermaid-font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";}Userwordpress-serviceWordPress Deploymentwp-content-pvcwordpress-mysql-serviceMySQL 8.0 Deploymentwp-mysql-pvcwp-db-secret
-
-
-
-
-
-Resources:
+The server uses a 10Gi PersistentVolumeClaim and a 7-day
+retention period. The collector forwards logs to the server
+inside the Kubernetes cluster.
+6. WordPress and MySQL
+File: manifests/wordpress-stack.yaml
 Resource	Name	Configuration
-PersistentVolumeClaim	wp-mysql-pvc	10Gi, ReadWriteOnce
+PVC	wp-mysql-pvc	10Gi
 Deployment	wordpress-mysql	MySQL 8.0
 Service	wordpress-mysql-service	TCP 3306
-PersistentVolumeClaim	wp-content-pvc	10Gi, ReadWriteOnce
-Deployment	wordpress	WordPress container
-Service	wordpress-service	LoadBalancer, TCP 80
+PVC	wp-content-pvc	10Gi
+Deployment	wordpress	WordPress
+Service	wordpress-service	LoadBalancer
 Secret	wp-db-secret	Database credentials
 
-The WordPress container connects to MySQL through the internal Kubernetes
-Service wordpress-mysql-service.
-
-PersistentVolumeClaims provide storage for database and WordPress content.
-5.2 MetalLB
-MetalLB provides LoadBalancer functionality for this bare-metal
-Kubernetes environment.
-
-Configuration file: manifests/metallb-config.yaml
-Resource	Name	Value
-IPAddressPool	default-pool	192.168.2.100-192.168.2.150
-L2Advertisement	default-l2	Advertises the address pool
-
-#chatgpt-mermaid-_r_2ri_{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:16px;fill:rgb(13, 13, 13);}@keyframes edge-animation-frame{from{stroke-dashoffset:0;}}@keyframes dash{to{stroke-dashoffset:0;}}#chatgpt-mermaid-_r_2ri_ .edge-animation-slow{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 50s linear infinite;stroke-linecap:round;}#chatgpt-mermaid-_r_2ri_ .edge-animation-fast{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 20s linear infinite;stroke-linecap:round;}#chatgpt-mermaid-_r_2ri_ .error-icon{fill:rgb(243, 243, 243);}#chatgpt-mermaid-_r_2ri_ .error-text{fill:rgb(13, 13, 13);stroke:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2ri_ .edge-thickness-normal{stroke-width:1px;}#chatgpt-mermaid-_r_2ri_ .edge-thickness-thick{stroke-width:3.5px;}#chatgpt-mermaid-_r_2ri_ .edge-pattern-solid{stroke-dasharray:0;}#chatgpt-mermaid-_r_2ri_ .edge-thickness-invisible{stroke-width:0;fill:none;}#chatgpt-mermaid-_r_2ri_ .edge-pattern-dashed{stroke-dasharray:3;}#chatgpt-mermaid-_r_2ri_ .edge-pattern-dotted{stroke-dasharray:2;}#chatgpt-mermaid-_r_2ri_ .marker{fill:rgb(143, 143, 143);stroke:rgb(143, 143, 143);}#chatgpt-mermaid-_r_2ri_ .marker.cross{stroke:rgb(143, 143, 143);}#chatgpt-mermaid-_r_2ri_ svg{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:16px;}#chatgpt-mermaid-_r_2ri_ p{margin:0;}#chatgpt-mermaid-_r_2ri_ .label{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";color:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2ri_ .cluster-label text{fill:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2ri_ .cluster-label span{color:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2ri_ .cluster-label span p{background-color:transparent;}#chatgpt-mermaid-_r_2ri_ .label text,#chatgpt-mermaid-_r_2ri_ span{fill:rgb(13, 13, 13);color:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2ri_ .node rect,#chatgpt-mermaid-_r_2ri_ .node circle,#chatgpt-mermaid-_r_2ri_ .node ellipse,#chatgpt-mermaid-_r_2ri_ .node polygon,#chatgpt-mermaid-_r_2ri_ .node path{fill:rgb(222, 234, 251);stroke:rgb(83, 154, 248);stroke-width:1px;}#chatgpt-mermaid-_r_2ri_ .rough-node .label text,#chatgpt-mermaid-_r_2ri_ .node .label text,#chatgpt-mermaid-_r_2ri_ .image-shape .label,#chatgpt-mermaid-_r_2ri_ .icon-shape .label{text-anchor:middle;}#chatgpt-mermaid-_r_2ri_ .node .katex path{fill:#000;stroke:#000;stroke-width:1px;}#chatgpt-mermaid-_r_2ri_ .rough-node .label,#chatgpt-mermaid-_r_2ri_ .node .label,#chatgpt-mermaid-_r_2ri_ .image-shape .label,#chatgpt-mermaid-_r_2ri_ .icon-shape .label{text-align:center;}#chatgpt-mermaid-_r_2ri_ .node.clickable{cursor:pointer;}#chatgpt-mermaid-_r_2ri_ .root .anchor path{fill:rgb(143, 143, 143)!important;stroke-width:0;stroke:rgb(143, 143, 143);}#chatgpt-mermaid-_r_2ri_ .arrowheadPath{fill:rgb(143, 143, 143);}#chatgpt-mermaid-_r_2ri_ .edgePath .path{stroke:rgb(143, 143, 143);stroke-width:1px;}#chatgpt-mermaid-_r_2ri_ .flowchart-link{stroke:rgb(143, 143, 143);fill:none;}#chatgpt-mermaid-_r_2ri_ .edgeLabel{background-color:rgb(252, 252, 252);text-align:center;}#chatgpt-mermaid-_r_2ri_ .edgeLabel p{background-color:rgb(252, 252, 252);}#chatgpt-mermaid-_r_2ri_ .edgeLabel rect{opacity:0.5;background-color:rgb(252, 252, 252);fill:rgb(252, 252, 252);}#chatgpt-mermaid-_r_2ri_ .labelBkg{background-color:rgba(252, 252, 252, 0.5);}#chatgpt-mermaid-_r_2ri_ .cluster rect{fill:rgb(243, 243, 243);stroke:rgba(0, 0, 0, 0.1);stroke-width:1px;}#chatgpt-mermaid-_r_2ri_ .cluster text{fill:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2ri_ .cluster span{color:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2ri_ div.mermaidTooltip{position:absolute;text-align:center;max-width:200px;padding:2px;font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:12px;background:rgb(243, 243, 243);border:1px solid rgba(0, 0, 0, 0.1);border-radius:2px;pointer-events:none;z-index:100;}#chatgpt-mermaid-_r_2ri_ .flowchartTitleText{text-anchor:middle;font-size:18px;fill:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2ri_ rect.text{fill:none;stroke-width:0;}#chatgpt-mermaid-_r_2ri_ .icon-shape,#chatgpt-mermaid-_r_2ri_ .image-shape{background-color:rgb(252, 252, 252);text-align:center;}#chatgpt-mermaid-_r_2ri_ .icon-shape p,#chatgpt-mermaid-_r_2ri_ .image-shape p{background-color:rgb(252, 252, 252);padding:2px;}#chatgpt-mermaid-_r_2ri_ .icon-shape .label rect,#chatgpt-mermaid-_r_2ri_ .image-shape .label rect{opacity:0.5;background-color:rgb(252, 252, 252);fill:rgb(252, 252, 252);}#chatgpt-mermaid-_r_2ri_ .label-icon{display:inline-block;height:1em;overflow:visible;vertical-align:-0.125em;}#chatgpt-mermaid-_r_2ri_ .node .label-icon path{fill:currentColor;stroke:revert;stroke-width:revert;}#chatgpt-mermaid-_r_2ri_ .node .neo-node{stroke:rgb(83, 154, 248);}#chatgpt-mermaid-_r_2ri_ [data-look="neo"].node rect,#chatgpt-mermaid-_r_2ri_ [data-look="neo"].cluster rect,#chatgpt-mermaid-_r_2ri_ [data-look="neo"].node polygon{stroke:url(#chatgpt-mermaid-_r_2ri_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_2ri_ [data-look="neo"].swimlane.cluster rect{filter:none;}#chatgpt-mermaid-_r_2ri_ [data-look="neo"].node path{stroke:url(#chatgpt-mermaid-_r_2ri_-gradient);stroke-width:1px;}#chatgpt-mermaid-_r_2ri_ [data-look="neo"].node .outer-path{filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_2ri_ [data-look="neo"].node .neo-line path{stroke:rgb(83, 154, 248);filter:none;}#chatgpt-mermaid-_r_2ri_ [data-look="neo"].node circle{stroke:url(#chatgpt-mermaid-_r_2ri_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_2ri_ [data-look="neo"].node circle .state-start{fill:#000000;}#chatgpt-mermaid-_r_2ri_ [data-look="neo"].icon-shape .icon{fill:url(#chatgpt-mermaid-_r_2ri_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_2ri_ [data-look="neo"].icon-shape .icon-neo path{stroke:url(#chatgpt-mermaid-_r_2ri_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_2ri_ .node text{font-size:14px;font-weight:600;letter-spacing:normal;fill:rgb(0, 79, 153);}#chatgpt-mermaid-_r_2ri_ .edgeLabels text{font-size:13px;font-weight:600;letter-spacing:-0.08px;fill:rgb(0, 79, 153);}#chatgpt-mermaid-_r_2ri_ .node tspan[font-weight="normal"],#chatgpt-mermaid-_r_2ri_ .edgeLabels tspan[font-weight="normal"]{font-weight:600;}#chatgpt-mermaid-_r_2ri_ .edgeLabel .label rect{opacity:1;rx:13px;ry:13px;fill:rgb(245, 250, 255);stroke:rgb(206, 219, 229);stroke-width:1px;}#chatgpt-mermaid-_r_2ri_ .node rect,#chatgpt-mermaid-_r_2ri_ .node circle,#chatgpt-mermaid-_r_2ri_ .node ellipse,#chatgpt-mermaid-_r_2ri_ .node polygon,#chatgpt-mermaid-_r_2ri_ .node path{fill:rgb(229, 243, 255);stroke:rgba(0, 0, 0, 0.1);stroke-width:1px;}#chatgpt-mermaid-_r_2ri_ .node rect{rx:16px;ry:16px;}#chatgpt-mermaid-_r_2ri_ .mermaid-decision .label-container{fill:rgb(245, 250, 255);stroke:rgb(206, 219, 229);stroke-dasharray:2,2;}#chatgpt-mermaid-_r_2ri_ .edgePaths .flowchart-link{stroke:rgb(143, 143, 143);stroke-width:1px;stroke-linecap:round;stroke-linejoin:round;}#chatgpt-mermaid-_r_2ri_ .marker{fill:rgb(143, 143, 143);stroke:rgb(143, 143, 143);}#chatgpt-mermaid-_r_2ri_ :root{--mermaid-font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";}LAN ClientLoadBalancer IPMetalLBKubernetes ServiceApplication Pod
-
-
-
-
-
-MetalLB allocates external IP addresses to Kubernetes Services of type
-LoadBalancer.
-5.3 Cloudflare Tunnel
-The Cloudflare Tunnel connector is deployed in the monitoring namespace.
-
-Configuration file: manifests/cloudflared-deployment.yaml
+WordPress connects to MySQL through the internal Kubernetes Service.
+PersistentVolumeClaims provide storage for database and website data.
+7. Networking
+MetalLB
+File: manifests/metallb-config.yaml
 Setting	Value
-Deployment	cloudflared
-Replicas	2
-Container image	cloudflare/cloudflared:latest
-Tunnel mode	tunnel --no-autoupdate run
-Authentication	Kubernetes Secret cloudflared-secret
-Secret key	tunnel-token
-CPU request	100m
-Memory request	128Mi
-CPU limit	300m
-Memory limit	256Mi
+IPAddressPool	default-pool
+Address range	192.168.2.100-192.168.2.150
+L2Advertisement	default-l2
 
-The tunnel token is referenced from a Kubernetes Secret rather than
-being embedded directly in the Deployment manifest.
-5.4 Prometheus and Grafana
-The monitoring stack is deployed using the Prometheus Community
-kube-prometheus-stack Helm chart.
-
-Configuration file: prometheus-argocd-app.yaml
-Component	Purpose
-Prometheus	Collects and stores metrics
-Grafana	Visualizes metrics in dashboards
-Alertmanager	Handles alert notifications
-kube-state-metrics	Exposes Kubernetes object state metrics
-Node Exporter	Exposes node-level operating system metrics
-Prometheus Operator	Manages Prometheus-related resources
-
-Helm chart:
-Setting	Value
-Repository	https://prometheus-community.github.io/helm-charts
-Chart	kube-prometheus-stack
-Version	62.7.0
-Namespace	monitoring
-
-Grafana is exposed through the Service defined in
-manifests/grafana-lb-service.yaml.
-
-The Service uses type LoadBalancer and forwards TCP port 80 to
-Grafana's container port 3000.
-5.5 VictoriaLogs
-VictoriaLogs provides centralized log storage.
-
-The deployment is divided into two Argo CD-managed Helm Applications:
-- VictoriaLogs Server
-- VictoriaLogs Collector
-VictoriaLogs Server
-Configuration file: manifests/victoria-logs-server.yaml
-Setting	Value
-Helm chart	victoria-logs-single
-Chart version	0.13.10
-Release name	vls
-Namespace	logging
-Retention period	7 days
-Storage class	local-path
-Persistent storage	10Gi
-Memory limit	1Gi
-
-VictoriaLogs Collector
-Configuration file: manifests/victoria-logs-collector.yaml
-Setting	Value
-Helm chart	victoria-logs-collector
-Chart version	0.3.7
-Release name	vlc
-Namespace	logging
-Destination	VictoriaLogs Server
-CPU request	100m
-Memory request	128Mi
-CPU limit	300m
-Memory limit	256Mi
-
-The collector forwards logs to the server using the following internal
-Kubernetes Service URL:
-http://vls-victoria-logs-single-server.logging.svc.cluster.local:9428
-
-
-The victoria-logs-nodeport.yaml manifest exposes the VictoriaLogs
-Server on NodePort 30428.
-Log Collection Architecture
-#chatgpt-mermaid-_r_2rt_{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:16px;fill:rgb(13, 13, 13);}@keyframes edge-animation-frame{from{stroke-dashoffset:0;}}@keyframes dash{to{stroke-dashoffset:0;}}#chatgpt-mermaid-_r_2rt_ .edge-animation-slow{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 50s linear infinite;stroke-linecap:round;}#chatgpt-mermaid-_r_2rt_ .edge-animation-fast{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 20s linear infinite;stroke-linecap:round;}#chatgpt-mermaid-_r_2rt_ .error-icon{fill:rgb(243, 243, 243);}#chatgpt-mermaid-_r_2rt_ .error-text{fill:rgb(13, 13, 13);stroke:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2rt_ .edge-thickness-normal{stroke-width:1px;}#chatgpt-mermaid-_r_2rt_ .edge-thickness-thick{stroke-width:3.5px;}#chatgpt-mermaid-_r_2rt_ .edge-pattern-solid{stroke-dasharray:0;}#chatgpt-mermaid-_r_2rt_ .edge-thickness-invisible{stroke-width:0;fill:none;}#chatgpt-mermaid-_r_2rt_ .edge-pattern-dashed{stroke-dasharray:3;}#chatgpt-mermaid-_r_2rt_ .edge-pattern-dotted{stroke-dasharray:2;}#chatgpt-mermaid-_r_2rt_ .marker{fill:rgb(143, 143, 143);stroke:rgb(143, 143, 143);}#chatgpt-mermaid-_r_2rt_ .marker.cross{stroke:rgb(143, 143, 143);}#chatgpt-mermaid-_r_2rt_ svg{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:16px;}#chatgpt-mermaid-_r_2rt_ p{margin:0;}#chatgpt-mermaid-_r_2rt_ .label{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";color:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2rt_ .cluster-label text{fill:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2rt_ .cluster-label span{color:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2rt_ .cluster-label span p{background-color:transparent;}#chatgpt-mermaid-_r_2rt_ .label text,#chatgpt-mermaid-_r_2rt_ span{fill:rgb(13, 13, 13);color:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2rt_ .node rect,#chatgpt-mermaid-_r_2rt_ .node circle,#chatgpt-mermaid-_r_2rt_ .node ellipse,#chatgpt-mermaid-_r_2rt_ .node polygon,#chatgpt-mermaid-_r_2rt_ .node path{fill:rgb(222, 234, 251);stroke:rgb(83, 154, 248);stroke-width:1px;}#chatgpt-mermaid-_r_2rt_ .rough-node .label text,#chatgpt-mermaid-_r_2rt_ .node .label text,#chatgpt-mermaid-_r_2rt_ .image-shape .label,#chatgpt-mermaid-_r_2rt_ .icon-shape .label{text-anchor:middle;}#chatgpt-mermaid-_r_2rt_ .node .katex path{fill:#000;stroke:#000;stroke-width:1px;}#chatgpt-mermaid-_r_2rt_ .rough-node .label,#chatgpt-mermaid-_r_2rt_ .node .label,#chatgpt-mermaid-_r_2rt_ .image-shape .label,#chatgpt-mermaid-_r_2rt_ .icon-shape .label{text-align:center;}#chatgpt-mermaid-_r_2rt_ .node.clickable{cursor:pointer;}#chatgpt-mermaid-_r_2rt_ .root .anchor path{fill:rgb(143, 143, 143)!important;stroke-width:0;stroke:rgb(143, 143, 143);}#chatgpt-mermaid-_r_2rt_ .arrowheadPath{fill:rgb(143, 143, 143);}#chatgpt-mermaid-_r_2rt_ .edgePath .path{stroke:rgb(143, 143, 143);stroke-width:1px;}#chatgpt-mermaid-_r_2rt_ .flowchart-link{stroke:rgb(143, 143, 143);fill:none;}#chatgpt-mermaid-_r_2rt_ .edgeLabel{background-color:rgb(252, 252, 252);text-align:center;}#chatgpt-mermaid-_r_2rt_ .edgeLabel p{background-color:rgb(252, 252, 252);}#chatgpt-mermaid-_r_2rt_ .edgeLabel rect{opacity:0.5;background-color:rgb(252, 252, 252);fill:rgb(252, 252, 252);}#chatgpt-mermaid-_r_2rt_ .labelBkg{background-color:rgba(252, 252, 252, 0.5);}#chatgpt-mermaid-_r_2rt_ .cluster rect{fill:rgb(243, 243, 243);stroke:rgba(0, 0, 0, 0.1);stroke-width:1px;}#chatgpt-mermaid-_r_2rt_ .cluster text{fill:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2rt_ .cluster span{color:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2rt_ div.mermaidTooltip{position:absolute;text-align:center;max-width:200px;padding:2px;font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:12px;background:rgb(243, 243, 243);border:1px solid rgba(0, 0, 0, 0.1);border-radius:2px;pointer-events:none;z-index:100;}#chatgpt-mermaid-_r_2rt_ .flowchartTitleText{text-anchor:middle;font-size:18px;fill:rgb(13, 13, 13);}#chatgpt-mermaid-_r_2rt_ rect.text{fill:none;stroke-width:0;}#chatgpt-mermaid-_r_2rt_ .icon-shape,#chatgpt-mermaid-_r_2rt_ .image-shape{background-color:rgb(252, 252, 252);text-align:center;}#chatgpt-mermaid-_r_2rt_ .icon-shape p,#chatgpt-mermaid-_r_2rt_ .image-shape p{background-color:rgb(252, 252, 252);padding:2px;}#chatgpt-mermaid-_r_2rt_ .icon-shape .label rect,#chatgpt-mermaid-_r_2rt_ .image-shape .label rect{opacity:0.5;background-color:rgb(252, 252, 252);fill:rgb(252, 252, 252);}#chatgpt-mermaid-_r_2rt_ .label-icon{display:inline-block;height:1em;overflow:visible;vertical-align:-0.125em;}#chatgpt-mermaid-_r_2rt_ .node .label-icon path{fill:currentColor;stroke:revert;stroke-width:revert;}#chatgpt-mermaid-_r_2rt_ .node .neo-node{stroke:rgb(83, 154, 248);}#chatgpt-mermaid-_r_2rt_ [data-look="neo"].node rect,#chatgpt-mermaid-_r_2rt_ [data-look="neo"].cluster rect,#chatgpt-mermaid-_r_2rt_ [data-look="neo"].node polygon{stroke:url(#chatgpt-mermaid-_r_2rt_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_2rt_ [data-look="neo"].swimlane.cluster rect{filter:none;}#chatgpt-mermaid-_r_2rt_ [data-look="neo"].node path{stroke:url(#chatgpt-mermaid-_r_2rt_-gradient);stroke-width:1px;}#chatgpt-mermaid-_r_2rt_ [data-look="neo"].node .outer-path{filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_2rt_ [data-look="neo"].node .neo-line path{stroke:rgb(83, 154, 248);filter:none;}#chatgpt-mermaid-_r_2rt_ [data-look="neo"].node circle{stroke:url(#chatgpt-mermaid-_r_2rt_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_2rt_ [data-look="neo"].node circle .state-start{fill:#000000;}#chatgpt-mermaid-_r_2rt_ [data-look="neo"].icon-shape .icon{fill:url(#chatgpt-mermaid-_r_2rt_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_2rt_ [data-look="neo"].icon-shape .icon-neo path{stroke:url(#chatgpt-mermaid-_r_2rt_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_2rt_ .node text{font-size:14px;font-weight:600;letter-spacing:normal;fill:rgb(0, 79, 153);}#chatgpt-mermaid-_r_2rt_ .edgeLabels text{font-size:13px;font-weight:600;letter-spacing:-0.08px;fill:rgb(0, 79, 153);}#chatgpt-mermaid-_r_2rt_ .node tspan[font-weight="normal"],#chatgpt-mermaid-_r_2rt_ .edgeLabels tspan[font-weight="normal"]{font-weight:600;}#chatgpt-mermaid-_r_2rt_ .edgeLabel .label rect{opacity:1;rx:13px;ry:13px;fill:rgb(245, 250, 255);stroke:rgb(206, 219, 229);stroke-width:1px;}#chatgpt-mermaid-_r_2rt_ .node rect,#chatgpt-mermaid-_r_2rt_ .node circle,#chatgpt-mermaid-_r_2rt_ .node ellipse,#chatgpt-mermaid-_r_2rt_ .node polygon,#chatgpt-mermaid-_r_2rt_ .node path{fill:rgb(229, 243, 255);stroke:rgba(0, 0, 0, 0.1);stroke-width:1px;}#chatgpt-mermaid-_r_2rt_ .node rect{rx:16px;ry:16px;}#chatgpt-mermaid-_r_2rt_ .mermaid-decision .label-container{fill:rgb(245, 250, 255);stroke:rgb(206, 219, 229);stroke-dasharray:2,2;}#chatgpt-mermaid-_r_2rt_ .edgePaths .flowchart-link{stroke:rgb(143, 143, 143);stroke-width:1px;stroke-linecap:round;stroke-linejoin:round;}#chatgpt-mermaid-_r_2rt_ .marker{fill:rgb(143, 143, 143);stroke:rgb(143, 143, 143);}#chatgpt-mermaid-_r_2rt_ :root{--mermaid-font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";}Kubernetes NodesApplication and System PodsVictoriaLogs CollectorVictoriaLogs ServerPersistent VolumeRemote Write
-
-
-
-
-
-
-6. Network Exposure
-The repository defines several ways to access applications.
-Application	Kubernetes Service	Port
+MetalLB provides LoadBalancer IP addresses for bare-metal services.
+Service exposure
+Application	Service type	Port
 WordPress	LoadBalancer	80
 Grafana	LoadBalancer	80
 VictoriaLogs	NodePort	30428
 
-MetalLB provides LoadBalancer IP allocation for services in the
-bare-metal cluster.
+Cloudflare Tunnel
+File: manifests/cloudflared-deployment.yaml
+Setting	Value
+Deployment	cloudflared
+Replicas	2
+Image	cloudflare/cloudflared:latest
+Authentication	Secret cloudflared-secret
+Secret key	tunnel-token
 
-Cloudflare Tunnel provides an additional external connectivity path.
-The actual public hostname and tunnel ingress routing are configured
-outside the Deployment manifest.
+The tunnel token is obtained from a Kubernetes Secret.
+Public hostname and ingress routing are configured separately.
+8. Logging Architecture
+#chatgpt-mermaid-_r_317_{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:16px;fill:rgb(13, 13, 13);}@keyframes edge-animation-frame{from{stroke-dashoffset:0;}}@keyframes dash{to{stroke-dashoffset:0;}}#chatgpt-mermaid-_r_317_ .edge-animation-slow{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 50s linear infinite;stroke-linecap:round;}#chatgpt-mermaid-_r_317_ .edge-animation-fast{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 20s linear infinite;stroke-linecap:round;}#chatgpt-mermaid-_r_317_ .error-icon{fill:rgb(243, 243, 243);}#chatgpt-mermaid-_r_317_ .error-text{fill:rgb(13, 13, 13);stroke:rgb(13, 13, 13);}#chatgpt-mermaid-_r_317_ .edge-thickness-normal{stroke-width:1px;}#chatgpt-mermaid-_r_317_ .edge-thickness-thick{stroke-width:3.5px;}#chatgpt-mermaid-_r_317_ .edge-pattern-solid{stroke-dasharray:0;}#chatgpt-mermaid-_r_317_ .edge-thickness-invisible{stroke-width:0;fill:none;}#chatgpt-mermaid-_r_317_ .edge-pattern-dashed{stroke-dasharray:3;}#chatgpt-mermaid-_r_317_ .edge-pattern-dotted{stroke-dasharray:2;}#chatgpt-mermaid-_r_317_ .marker{fill:rgb(143, 143, 143);stroke:rgb(143, 143, 143);}#chatgpt-mermaid-_r_317_ .marker.cross{stroke:rgb(143, 143, 143);}#chatgpt-mermaid-_r_317_ svg{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:16px;}#chatgpt-mermaid-_r_317_ p{margin:0;}#chatgpt-mermaid-_r_317_ .label{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";color:rgb(13, 13, 13);}#chatgpt-mermaid-_r_317_ .cluster-label text{fill:rgb(13, 13, 13);}#chatgpt-mermaid-_r_317_ .cluster-label span{color:rgb(13, 13, 13);}#chatgpt-mermaid-_r_317_ .cluster-label span p{background-color:transparent;}#chatgpt-mermaid-_r_317_ .label text,#chatgpt-mermaid-_r_317_ span{fill:rgb(13, 13, 13);color:rgb(13, 13, 13);}#chatgpt-mermaid-_r_317_ .node rect,#chatgpt-mermaid-_r_317_ .node circle,#chatgpt-mermaid-_r_317_ .node ellipse,#chatgpt-mermaid-_r_317_ .node polygon,#chatgpt-mermaid-_r_317_ .node path{fill:rgb(222, 234, 251);stroke:rgb(83, 154, 248);stroke-width:1px;}#chatgpt-mermaid-_r_317_ .rough-node .label text,#chatgpt-mermaid-_r_317_ .node .label text,#chatgpt-mermaid-_r_317_ .image-shape .label,#chatgpt-mermaid-_r_317_ .icon-shape .label{text-anchor:middle;}#chatgpt-mermaid-_r_317_ .node .katex path{fill:#000;stroke:#000;stroke-width:1px;}#chatgpt-mermaid-_r_317_ .rough-node .label,#chatgpt-mermaid-_r_317_ .node .label,#chatgpt-mermaid-_r_317_ .image-shape .label,#chatgpt-mermaid-_r_317_ .icon-shape .label{text-align:center;}#chatgpt-mermaid-_r_317_ .node.clickable{cursor:pointer;}#chatgpt-mermaid-_r_317_ .root .anchor path{fill:rgb(143, 143, 143)!important;stroke-width:0;stroke:rgb(143, 143, 143);}#chatgpt-mermaid-_r_317_ .arrowheadPath{fill:rgb(143, 143, 143);}#chatgpt-mermaid-_r_317_ .edgePath .path{stroke:rgb(143, 143, 143);stroke-width:1px;}#chatgpt-mermaid-_r_317_ .flowchart-link{stroke:rgb(143, 143, 143);fill:none;}#chatgpt-mermaid-_r_317_ .edgeLabel{background-color:rgb(252, 252, 252);text-align:center;}#chatgpt-mermaid-_r_317_ .edgeLabel p{background-color:rgb(252, 252, 252);}#chatgpt-mermaid-_r_317_ .edgeLabel rect{opacity:0.5;background-color:rgb(252, 252, 252);fill:rgb(252, 252, 252);}#chatgpt-mermaid-_r_317_ .labelBkg{background-color:rgba(252, 252, 252, 0.5);}#chatgpt-mermaid-_r_317_ .cluster rect{fill:rgb(243, 243, 243);stroke:rgba(0, 0, 0, 0.1);stroke-width:1px;}#chatgpt-mermaid-_r_317_ .cluster text{fill:rgb(13, 13, 13);}#chatgpt-mermaid-_r_317_ .cluster span{color:rgb(13, 13, 13);}#chatgpt-mermaid-_r_317_ div.mermaidTooltip{position:absolute;text-align:center;max-width:200px;padding:2px;font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:12px;background:rgb(243, 243, 243);border:1px solid rgba(0, 0, 0, 0.1);border-radius:2px;pointer-events:none;z-index:100;}#chatgpt-mermaid-_r_317_ .flowchartTitleText{text-anchor:middle;font-size:18px;fill:rgb(13, 13, 13);}#chatgpt-mermaid-_r_317_ rect.text{fill:none;stroke-width:0;}#chatgpt-mermaid-_r_317_ .icon-shape,#chatgpt-mermaid-_r_317_ .image-shape{background-color:rgb(252, 252, 252);text-align:center;}#chatgpt-mermaid-_r_317_ .icon-shape p,#chatgpt-mermaid-_r_317_ .image-shape p{background-color:rgb(252, 252, 252);padding:2px;}#chatgpt-mermaid-_r_317_ .icon-shape .label rect,#chatgpt-mermaid-_r_317_ .image-shape .label rect{opacity:0.5;background-color:rgb(252, 252, 252);fill:rgb(252, 252, 252);}#chatgpt-mermaid-_r_317_ .label-icon{display:inline-block;height:1em;overflow:visible;vertical-align:-0.125em;}#chatgpt-mermaid-_r_317_ .node .label-icon path{fill:currentColor;stroke:revert;stroke-width:revert;}#chatgpt-mermaid-_r_317_ .node .neo-node{stroke:rgb(83, 154, 248);}#chatgpt-mermaid-_r_317_ [data-look="neo"].node rect,#chatgpt-mermaid-_r_317_ [data-look="neo"].cluster rect,#chatgpt-mermaid-_r_317_ [data-look="neo"].node polygon{stroke:url(#chatgpt-mermaid-_r_317_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_317_ [data-look="neo"].swimlane.cluster rect{filter:none;}#chatgpt-mermaid-_r_317_ [data-look="neo"].node path{stroke:url(#chatgpt-mermaid-_r_317_-gradient);stroke-width:1px;}#chatgpt-mermaid-_r_317_ [data-look="neo"].node .outer-path{filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_317_ [data-look="neo"].node .neo-line path{stroke:rgb(83, 154, 248);filter:none;}#chatgpt-mermaid-_r_317_ [data-look="neo"].node circle{stroke:url(#chatgpt-mermaid-_r_317_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_317_ [data-look="neo"].node circle .state-start{fill:#000000;}#chatgpt-mermaid-_r_317_ [data-look="neo"].icon-shape .icon{fill:url(#chatgpt-mermaid-_r_317_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_317_ [data-look="neo"].icon-shape .icon-neo path{stroke:url(#chatgpt-mermaid-_r_317_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-_r_317_ .node text{font-size:14px;font-weight:600;letter-spacing:normal;fill:rgb(0, 79, 153);}#chatgpt-mermaid-_r_317_ .edgeLabels text{font-size:13px;font-weight:600;letter-spacing:-0.08px;fill:rgb(0, 79, 153);}#chatgpt-mermaid-_r_317_ .node tspan[font-weight="normal"],#chatgpt-mermaid-_r_317_ .edgeLabels tspan[font-weight="normal"]{font-weight:600;}#chatgpt-mermaid-_r_317_ .edgeLabel .label rect{opacity:1;rx:13px;ry:13px;fill:rgb(245, 250, 255);stroke:rgb(206, 219, 229);stroke-width:1px;}#chatgpt-mermaid-_r_317_ .node rect,#chatgpt-mermaid-_r_317_ .node circle,#chatgpt-mermaid-_r_317_ .node ellipse,#chatgpt-mermaid-_r_317_ .node polygon,#chatgpt-mermaid-_r_317_ .node path{fill:rgb(229, 243, 255);stroke:rgba(0, 0, 0, 0.1);stroke-width:1px;}#chatgpt-mermaid-_r_317_ .node rect{rx:16px;ry:16px;}#chatgpt-mermaid-_r_317_ .mermaid-decision .label-container{fill:rgb(245, 250, 255);stroke:rgb(206, 219, 229);stroke-dasharray:2,2;}#chatgpt-mermaid-_r_317_ .edgePaths .flowchart-link{stroke:rgb(143, 143, 143);stroke-width:1px;stroke-linecap:round;stroke-linejoin:round;}#chatgpt-mermaid-_r_317_ .marker{fill:rgb(143, 143, 143);stroke:rgb(143, 143, 143);}#chatgpt-mermaid-_r_317_ :root{--mermaid-font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";}Kubernetes NodesVictoriaLogs CollectorVictoriaLogs ServerPersistent Storage
 
-7. Namespace Organization
-The platform uses separate namespaces to organize its components.
+
+
+
+
+VictoriaLogs centralizes logs collected from the Kubernetes environment.
+The server is exposed through NodePort 30428.
+9. Namespaces
 Namespace	Components
 argocd	Argo CD
 default	WordPress and MySQL
 monitoring	Prometheus, Grafana, Alertmanager, Cloudflare Tunnel
-logging	VictoriaLogs Server and Collector
+logging	VictoriaLogs
 metallb-system	MetalLB
 kube-system	Kubernetes system components
 local-path-storage	Local Path Provisioner
 
-
-8. Operations and Troubleshooting
-The following commands are useful when operating and troubleshooting
-the platform.
-8.1 Check Cluster Nodes
+10. Operations
+Check nodes:
 kubectl get nodes -o wide
 
 
-8.2 Check Namespaces
-kubectl get namespaces
-
-
-8.3 Check All Pods
+Check all Pods:
 kubectl get pods -A -o wide
 
 
-8.4 Check Services
+Check Services:
 kubectl get services -A
 
 
-8.5 Check PersistentVolumeClaims
+Check storage:
 kubectl get pvc -A
 
 
-8.6 Check Argo CD Applications
+Check Argo CD Applications:
 kubectl get applications -n argocd
 
 
-8.7 Inspect an Argo CD Application
+Inspect an Application:
 kubectl describe application portfolio-apps -n argocd
 
 
-8.8 Inspect Pod Events
-kubectl describe pod <pod-name> -n <namespace>
-
-
-8.9 Check Recent Events
+Inspect recent events:
 kubectl get events -A --sort-by=.metadata.creationTimestamp
 
 
-
-9. Troubleshooting Exercise
-The repository includes broken-pod.yaml, an intentionally
-misconfigured Pod manifest.
-
-It uses an invalid Nginx image tag:
+11. Troubleshooting Exercise
+The repository contains broken-pod.yaml.
+It intentionally specifies an invalid Nginx image tag:
 image: nginx:typo-version
 
 
-This manifest is stored outside the manifests/ directory and is not
+The file is outside the manifests/ directory and is not
 automatically deployed by the main Argo CD Application.
 
-It can be used to practice identifying image pull failures.
-9.1 Deploy the Test Pod
+Deploy the test Pod:
 kubectl apply -f broken-pod.yaml
 
 
-9.2 Inspect the Pod
-kubectl get pods
+Inspect the failure:
 kubectl describe pod broken-nginx
-
-
-9.3 Inspect Events
 kubectl get events --sort-by=.metadata.creationTimestamp
 
 
-The invalid image tag should result in an image pull failure.
-9.4 Clean Up
-Delete the test resource after completing the exercise:
+Remove the test Pod:
 kubectl delete -f broken-pod.yaml
 
 
+12. Security Considerations
+This is a personal infrastructure and learning environment.
+Additional work is required before treating it as production-ready.
 
-10. Security and Production Considerations
-This repository is a personal infrastructure portfolio and learning
-environment. It should not be considered production-ready without
-further security and reliability work.
-
-Recommended improvements include:
-- Store credentials in Kubernetes Secrets or an external secret manager.
-- Avoid committing passwords, API tokens, and tunnel credentials to Git.
-- Avoid using default or easily guessed passwords.
-- Pin container images to specific versions or digests instead of
-  relying on latest.
-- Configure resource requests and limits for all workloads.
-- Review network exposure and restrict access to administrative services.
-- Configure backups and recovery procedures for persistent data.
-- Consider high availability and storage replication where required.
-- Review TLS configuration for externally accessible services.
-Important: Review prometheus-argocd-app.yaml before making this
-repository public. If it still contains a hardcoded Grafana password,
-replace that configuration with a secure Secret-based approach.
-Do not commit actual credentials to the repository.
-
-11. Current Deployment Status
-The following Argo CD Applications were observed in the cluster during
-the documentation update.
-Application	Sync Status	Health Status
+Recommended improvements:
+- Store credentials securely.
+- Never commit actual passwords or API tokens.
+- Avoid default passwords.
+- Pin container images to specific versions.
+- Review external service exposure.
+- Configure backups and recovery procedures.
+- Apply network policies and workload security controls.
+- Review TLS configuration.
+Review prometheus-argocd-app.yaml for hardcoded Grafana credentials
+before making the repository public.
+13. Deployment Status
+The following Applications were observed as Synced and Healthy
+during the documentation update.
+Application	Sync	Health
 portfolio-apps	Synced	Healthy
 portfolio-monitoring-stack	Synced	Healthy
 victoria-logs-collector	Synced	Healthy
 victoria-logs-server	Synced	Healthy
 
-These statuses describe the cluster at the time of documentation and
-may change as the infrastructure evolves.
-
-12. Future Improvements
-Potential future enhancements for this project include:
-- Add automated validation of Kubernetes manifests.
-- Introduce Kustomize overlays for environment-specific configuration.
-- Add CI workflows using GitHub Actions.
-- Implement automated backup and restore testing.
-- Add more Grafana dashboards and alert rules.
+These statuses are a snapshot and may change.
+14. Future Improvements
+- Add GitHub Actions for manifest validation.
+- Introduce Kustomize overlays.
 - Improve secrets management.
-- Add network policies and workload security controls.
+- Add automated backups.
+- Expand Grafana dashboards and alert rules.
+- Implement network policies.
 - Document disaster recovery procedures.
-
-13. Author
+15. Author
 David Daisuke
 
 GitHub: david-daisuke
 
-This repository demonstrates hands-on experience with Kubernetes,
-GitOps, Argo CD, Helm, observability, networking, and self-hosted
-applications.
+This project demonstrates practical experience with Kubernetes,
+GitOps, Argo CD, Helm, networking, monitoring, and centralized logging.
