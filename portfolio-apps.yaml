@@ -7,7 +7,7 @@ spec:
   project: default
   source:
     repoURL: 'https://github.com/david-daisuke/argocd-gitops-portfolio.git'
-    targetRevision: HEAD
+    targetRevision: main
     path: manifests
   destination:
     server: https://kubernetes.default.svc
