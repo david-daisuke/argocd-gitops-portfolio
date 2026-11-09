@@ -7,7 +7,7 @@ spec:
   project: default
   source:
     repoURL: 'https://charts.k8sgpt.ai/'
-    targetRevision: 0.1.4
+    targetRevision: 0.2.29
     chart: k8sgpt-operator
     helm:
       values: |
@@ -15,11 +15,7 @@ spec:
           kubeRbacProxy:
             image:
               repository: quay.io/brancz/kube-rbac-proxy
-              tag: v0.16.0
-        kubeRbacProxy:
-          image:
-            repository: quay.io/brancz/kube-rbac-proxy
-            tag: v0.16.0
+              tag: v0.19.1
   destination:
     server: https://kubernetes.default.svc
     namespace: k8sgpt-system

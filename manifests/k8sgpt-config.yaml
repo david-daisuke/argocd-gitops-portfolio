@@ -6,16 +6,13 @@ metadata:
 spec:
   ai:
     enabled: true
-    backend: openai
+    backend: localai
     baseUrl: http://ollama.ollama.svc.cluster.local:11434/v1
     model: llama3
-    secret:
-      name: k8sgpt-openai-secret
-      key: api-key
   filters:
     - Pod
     - Deployment
     - Service
   noCache: false
   repository: ghcr.io/k8sgpt-ai/k8sgpt
-  version: v0.3.41
+  version: v0.4.32
