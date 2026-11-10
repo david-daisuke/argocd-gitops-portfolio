@@ -509,42 +509,92 @@ The following commands are useful when operating and troubleshooting the platfor
 
 ```bash
 kubectl get nodes -o wide
+NAME          STATUS   ROLES           AGE     VERSION   INTERNAL-IP    EXTERNAL-IP   OS-IMAGE             KERNEL-VERSION     CONTAINER-RUNTIME
+k8s-control   Ready    control-plane   4d15h   v1.30.0   192.168.2.13   <none>        Ubuntu 26.04.1 LTS   7.0.0-42-generic   containerd://2.2.2
+k8s-worker1   Ready    <none>          4d15h   v1.30.0   192.168.2.14   <none>        Ubuntu 26.04.1 LTS   7.0.0-42-generic   containerd://2.2.2
+k8s-worker2   Ready    <none>          4d15h   v1.30.0   192.168.2.15   <none>        Ubuntu 26.04.1 LTS   7.0.0-42-generic   containerd://2.2.2
 ```
 
 ### 8.2 Check Namespaces
 
 ```bash
 kubectl get namespaces
+NAME                 STATUS   AGE
+argocd               Active   4d1h
+default              Active   4d15h
+kube-node-lease      Active   4d15h
+kube-public          Active   4d15h
+kube-system          Active   4d15h
+local-path-storage   Active   42h
+logging              Active   22h
+metallb-system       Active   2d2h
+monitoring           Active   2d18h
 ```
 
 ### 8.3 Check All Pods
 
 ```bash
 kubectl get pods -A -o wide
+NAMESPACE            NAME                                                             READY   STATUS    RESTARTS       AGE     IP                NODE          NOMINATED NODE   READINESS GATES
+argocd               argocd-application-controller-0                                  1/1     Running   0              4d1h    192.168.194.69    k8s-worker1   <none>           <none>
+argocd               argocd-applicationset-controller-5785d5b967-8fwzn                1/1     Running   0              4d1h    192.168.194.68    k8s-worker1   <none>           <none>
+argocd               argocd-dex-server-5768568bf-5m67k                                1/1     Running   0              4d1h    192.168.126.3     k8s-worker2   <none>           <none>
+argocd               argocd-notifications-controller-5bc9bdb564-2jhc9                 1/1     Running   0              4d1h    192.168.126.1     k8s-worker2   <none>           <none>
+argocd               argocd-redis-54b57dd6f-gkm8m                                     1/1     Running   0              4d1h    192.168.126.2     k8s-worker2   <none>           <none>
+argocd               argocd-repo-server-657c676d87-sc4vb                              1/1     Running   0              2d18h   192.168.194.70    k8s-worker1   <none>           <none>
+argocd               argocd-server-75f5bcb8c7-86zqm                                   1/1     Running   12 (11h ago)   4d1h    192.168.126.4     k8s-worker2   <none>           <none>
+default              wordpress-7df88cbbb4-8xg7x                                       1/1     Running   0              42h     192.168.126.19    k8s-worker2   <none>           <none>
 ```
 
 ### 8.4 Check Services
 
 ```bash
 kubectl get services -A
+NAMESPACE        NAME                                                  TYPE           CLUSTER-IP       EXTERNAL-IP     PORT(S)                        AGE
+argocd           argocd-application-controller                         ClusterIP      None             <none>          <none>                         4d1h
+argocd           argocd-applicationset-controller                      ClusterIP      10.96.153.81     <none>          7000/TCP,8080/TCP              4d1h
+argocd           argocd-dex-server                                     ClusterIP      10.103.236.196   <none>          5556/TCP,5557/TCP,5558/TCP     4d1h
+argocd           argocd-metrics                                        ClusterIP      10.103.169.140   <none>          8082/TCP                       4d1h
+argocd           argocd-notifications-controller-metrics               ClusterIP      10.100.6.138     <none>          9001/TCP                       4d1h
 ```
 
 ### 8.5 Check PersistentVolumeClaims
 
 ```bash
 kubectl get pvc -A
+NAMESPACE   NAME                                              STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+default     wp-content-pvc                                    Bound    pvc-d1f1ca72-fbe9-4e63-a14b-18514575b776   10Gi       RWO            local-path     <unset>                 42h
+default     wp-mysql-pvc                                      Bound    pvc-74b99715-d423-484a-a542-8178f7b1da00   10Gi       RWO            local-path     <unset>                 42h
+logging     server-volume-vls-victoria-logs-single-server-0   Bound    pvc-dd91d99c-f5c1-43a3-8569-810072cd189c   10Gi       RWO            local-path     <unset>                 22h
 ```
 
 ### 8.6 Check Argo CD Applications
 
 ```bash
 kubectl get applications -n argocd
+kubectl get applications -n argocd
+NAME                         SYNC STATUS   HEALTH STATUS
+portfolio-apps               Synced        Healthy
+portfolio-monitoring-stack   Synced        Healthy
+victoria-logs-collector      Synced        Healthy
+victoria-logs-server         Synced        Healthy
 ```
 
 ### 8.7 Inspect an Argo CD Application
 
 ```bash
 kubectl describe application portfolio-apps -n argocd
+Name:         portfolio-apps
+Namespace:    argocd
+Labels:       <none>
+Annotations:  <none>
+API Version:  argoproj.io/v1alpha1
+Kind:         Application
+Metadata:
+  Creation Timestamp:  2026-11-08T06:49:58Z
+  Generation:          948
+  Resource Version:    627429
+  UID:                 e4111272-fbcb-4dba-9c21-b4d88237e4c2
 ```
 
 ### 8.8 Inspect Pod Events
