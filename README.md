@@ -240,6 +240,7 @@ argocd-gitops-portfolio/
 ## 4. GitOps Configuration
 
 ### 4.1 Main Argo CD Application
+<img width="3376" height="1148" alt="image" src="https://github.com/user-attachments/assets/15ba3521-d4c3-4987-adf6-6464a5a683e3" />
 
 File: `portfolio-apps.yaml`
 
@@ -258,6 +259,7 @@ File: `portfolio-apps.yaml`
 Argo CD monitors the `manifests/` directory and automatically reconciles the cluster when changes are pushed to Git.
 
 ### 4.2 Monitoring Stack Application
+<img width="3294" height="1421" alt="image" src="https://github.com/user-attachments/assets/35fac322-99da-486f-a111-b62bf21e2ca6" />
 
 File: `prometheus-argocd-app.yaml`
 
@@ -275,6 +277,7 @@ File: `prometheus-argocd-app.yaml`
 ### 4.3 VictoriaLogs Applications
 
 VictoriaLogs Server and Collector are managed as separate Argo CD Applications.
+<img width="3367" height="1344" alt="image" src="https://github.com/user-attachments/assets/2c852d33-0c1e-406b-97b6-deff9a6e7eaf" />
 
 This separation allows independent deployment and lifecycle management.
 
